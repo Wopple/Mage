@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright 2009 Christopher Czyzewski
 # This file is part of Project Mage.
 #
