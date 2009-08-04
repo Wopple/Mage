@@ -1,4 +1,4 @@
-# Copyright 2009 Christopher Czyzewski
+# Copyright 2009 Christopher Czyzewski, Daniel Tashjian
 # This file is part of Project Mage.
 #
 #    Project Mage is free software: you can redistribute it and/or modify
@@ -33,6 +33,7 @@ import soundSystem
 import pieceTicker
 import player
 import cornerInfo
+import ai
 
 class Model(model.Model):
     def __init__(self, tiles, theChapter, activeChars):
@@ -66,6 +67,9 @@ class Model(model.Model):
         self.refreshMovement(False, False)
         self.startingRefill()
 
+        # Set the ai for the battle.
+        self.enemy_ai = ai.null.NullAI(self)
+
     def goCheat(self, inCheat):
         if inCheat == 1:
             self.goForward = True
@@ -85,6 +89,8 @@ class Model(model.Model):
         if self.stationOpen:
             self.charStation.update(self.idleTicker, self.activeTicker)
         self.updateActors()
+        if self.phase == 2:
+            self.enemy_ai.run()
 
     def updateActors(self):
         for y in range(len(self.field)):

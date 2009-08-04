@@ -14,4 +14,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Project Mage.  If not, see <http://www.gnu.org/licenses/>.
 
+from model import Model
 
+""" The NullAI class tells the battle to end the enemy phase. """
+class NullAI(object):
+    def __init__(self, battle):
+        self.battle = battle
+
+    def run(self):
+        self.battle.nextPhase()
