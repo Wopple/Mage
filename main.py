@@ -158,7 +158,7 @@ def gameLoop(inChapter):
         theChapter = game.chapters[currChapter]
         chapterNameScreen(theChapter, currChapter)
         activeChars = chapterPrebattleSelect(theChapter)
-        xpGained = chapterBattle(game.tiles, theChapter, activeChars)
+        xpGained = chapterBattle(game.tiles, theChapter, activeChars, game.enemies)
         game.xp += xpGained
         chapterPostbattleXP(theChapter, activeChars)
         currChapter += 1
@@ -179,8 +179,8 @@ def chapterPrebattleSelect(theChapter):
             activeChars.append(game.players[sel])
     return activeChars
 
-def chapterBattle(tiles, theChapter, activeChars):
-    battleModel = battleScreen_m.Model(tiles, theChapter, activeChars)
+def chapterBattle(tiles, theChapter, activeChars, enemyList):
+    battleModel = battleScreen_m.Model(tiles, theChapter, activeChars, enemyList)
     battleView = battleScreen_v.View()
     changeMVC(8, battleModel, battleView, cursor_c.Controller())
     phase = -1

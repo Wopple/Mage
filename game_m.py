@@ -42,20 +42,23 @@ class Model(model.Model):
 
         self.missionPath = os.path.join(MISSION_PATH, inPath)
 
-        if self.success:
-            self.checkerMessage("Campaign")
-            self.success = self.checkMissionFile()
-        if self.success:
-            self.success = self.checkTileset()
-        if self.success:
-            self.checkerMessage("Player Characters")
-            self.success = self.checkCharacters()
-        if self.success:
-            self.checkerMessage("Enemies")
-            self.success = self.checkEnemies()
-        if self.success:
-            self.checkerMessage("Chapters")
-            self.success = self.checkChapters()
+        try:
+            if self.success:
+                self.checkerMessage("Campaign")
+                self.success = self.checkMissionFile()
+            if self.success:
+                self.success = self.checkTileset()
+            if self.success:
+                self.checkerMessage("Player Characters")
+                self.success = self.checkCharacters()
+            if self.success:
+                self.checkerMessage("Enemies")
+                self.success = self.checkEnemies()
+            if self.success:
+                self.checkerMessage("Chapters")
+                self.success = self.checkChapters()
+        except:
+            self.success = False
             
         self.createSuccessMenu()
 
@@ -180,9 +183,11 @@ class Model(model.Model):
             tempPath2 = os.path.join(self.missionPath, tempText)
             tempText = PLAYER_POS_FILE + str(num) + PLAYER_POS_FILE_EXT
             tempPath3 = os.path.join(self.missionPath, tempText)
+            tempText = OBSTACLE_FILE + str(num) + OBSTACLE_FILE_EXT
+            tempPath4 = os.path.join(self.missionPath, tempText)
             self.checkerMessage("Chapter Data File", 2)
             if os.path.exists(tempPath):
-                success = self.buildChapter(tempPath, tempPath2, tempPath3)
+                success = self.buildChapter(tempPath, tempPath2, tempPath3, tempPath4)
                 if not success:
                     return False
                 num += 1
@@ -295,7 +300,7 @@ class Model(model.Model):
         except:
             return False
 
-    def buildChapter(self, inPath, inPath2, inPath3):
+    def buildChapter(self, inPath, inPath2, inPath3, inPath4):
         chapterFile = open(inPath)
         
         chapterName = chapterFile.readline()
@@ -317,6 +322,32 @@ class Model(model.Model):
             if (tempSize < MAP_SIZE_MIN) or (tempSize > MAP_SIZE_MAX):
                 return False
             if tempSize != testSize:
+                return False
+
+        
+        self.checkerMessage("Map Obstacles", 2)
+        obstacleFile = open(inPath4)
+        tempArray = obstacleFile.readlines()
+        obstacleArray = []
+        for x in tempArray:
+            obstacleArray.append(x.split(";"))
+
+        enemyArray = []
+        for x in obstacleArray:
+            if len(x) != 4:
+                return False
+            try:
+                x[1] = int(x[1])
+                x[2] = int(x[2])
+                x[3] = int(x[3])
+                if x[2] < 0 or x[2] > len(mapArray[0]):
+                    return False
+                if x[3] < 0 or x[3] > len(mapArray):
+                    return False
+                if x[0] == "E":
+                    if x[1] < 0 or x[1] > len(self.enemies):
+                        return False
+            except:
                 return False
 
         self.checkerMessage("Starting Positions File", 2)
@@ -347,7 +378,7 @@ class Model(model.Model):
             refinedArray.append((tempX, tempY))
 
         self.checkerMessage("Finalizing Chapter", 2)
-        self.chapters.append(chapter.Chapter(chapterName, mapArray, refinedArray))
+        self.chapters.append(chapter.Chapter(chapterName, mapArray, refinedArray, obstacleArray))
 
         chapterFile.close()
         mapFile.close()
@@ -408,6 +439,9 @@ class Model(model.Model):
 
     def numOfChapters(self):
         return len(self.chapters)
+
+    def numOfEnemies(self):
+        return len(self.enemies)
 
     def checkerMessage(self, message, spaces=0):
         if DEBUG_MODE:

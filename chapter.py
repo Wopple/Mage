@@ -22,12 +22,13 @@ import random
 from constants import *
 
 class Chapter(object):
-    def __init__(self, inName, inMap, inStartingPos):
+    def __init__(self, inName, inMap, inStartingPos, inObstacles):
 
         self.name = inName
         self.startingPos = inStartingPos
 
         self.createMapFromStrings(inMap)
+        self.obstacles = inObstacles
 
     def createMapFromStrings(self, inMap):
         self.map = []

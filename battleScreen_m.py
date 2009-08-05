@@ -34,13 +34,15 @@ import pieceTicker
 import player
 import cornerInfo
 import ai
+import enemy
 
 class Model(model.Model):
-    def __init__(self, tiles, theChapter, activeChars):
+    def __init__(self, tiles, theChapter, activeChars, enemyList):
         super(Model, self).__init__()
         self.background = background.Background(pygame.Rect((0, 0), SCREEN_SIZE), STARFIELD_PATTERN, STARFIELD_PATTERN_SIZE)
         self.idleTicker = pieceTicker.PieceTicker(IDLE_ANIM_SPEED)
         self.activeTicker = pieceTicker.PieceTicker(ACTIVE_ANIM_SPEED)
+        self.enemyList = enemyList
         self.tiles = tiles
         self.auras = []
         self.chapter = theChapter
@@ -48,6 +50,7 @@ class Model(model.Model):
         self.xpGained = 300
         self.goForward = False
         self.createMap()
+        self.placeEnemies()
         self.cursor = cursor.Cursor(pygame.Rect( (0, 0), TILE_SIZE ) )
         self.cursorPos = [ incint.IncInt(0, 0, len(self.chapter.map[0])-1), incint.IncInt(0, 0, len(self.chapter.map)-1) ]
         self.scrollMap()
@@ -531,7 +534,17 @@ class Model(model.Model):
         tempActor = self.getActorAtCursor()
         if tempActor == False:
             portrait = None
+        elif isinstance(tempActor, enemy.Enemy):
+            portrait = None
         else:
             portrait = tempActor.portrait
         
         self.cornerInfo.update(side, portrait)
+
+    def placeEnemies(self):
+        for x in self.chapter.obstacles:
+            if x[0] == "E":
+                tempEnemy = self.enemyList[x[1]]
+                newEnemy = enemy.Enemy(tempEnemy.name, tempEnemy.getStatsOrig(), tempEnemy.gift)
+                newEnemy.piece.changeSpriteSheet(tempEnemy.piece.spriteSheet)
+                self.insertActor(newEnemy, (x[2], x[3]))

@@ -102,6 +102,8 @@ ENEMY_FILE = "enemy"
 ENEMY_FILE_EXT = ".dat"
 ENEMY_SPRITE = "enemypiece"
 ENEMY_SPRITE_EXT = ".png"
+OBSTACLE_FILE = "mapPlacement"
+OBSTACLE_FILE_EXT = ".dat"
 
 MENU_LIST_SIZE = 10
 
