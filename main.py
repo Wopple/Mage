@@ -61,6 +61,9 @@ from constants import *
 
 
 def changeMVC(val, newM, newV, newC):
+    #Changes the Model/View/Controller currently in use
+    #Val must be a new value than the previous value in order to
+    #register.
     global state
     global screen
     global m
@@ -79,12 +82,14 @@ def changeMVC(val, newM, newV, newC):
         v.setScreen(screen)
 
 def changeC(newC):
+    #Changes only the controller
     global c
     c = newC
     c.setView(v)
     c.setModel(m)
 
 def proceed(tickClock=True):
+    #Progresses by one frame, updating each component of the MVC system.
     global m
     global v
     global c
@@ -114,13 +119,16 @@ def criticalError(val):
 
 
 def mainLoop():
+    #Main Game Loop
     global game
-    
+
+    #Runs Title Screen/Main Menu
     checker01 = False
     changeMVC(1, title_m.Model(), title_v.View(), menu_c.Controller())
     proceed()
     if m.advance():
         if m.titleMenu.value() == 1:
+            #Runs the Campaign Selection menu
             changeMVC(2, missionSel_m.Model(), missionSel_v.View(), menu_c.Controller())
             while not(m.either()):
                 proceed()
@@ -130,12 +138,14 @@ def mainLoop():
                 screenshot.blit(screen, (0,0))
                 v.update()
         elif m.titleMenu.value() == 2:
+            #Runs the Load Game section
             changeMVC(3, loadSel_m.Model(), loadSel_v.View(), menu_c.Controller())
             while not(m.either()):
                 proceed()
             if m.advance():
                 checker01 = True
     if checker01:
+        #Initiates the game model, which involves much loading and file reading
         missionPath = m.getCurrMission()[2]
         game = game_m.Model(missionPath)
         changeMVC(4, game, game_v.View(), menu_c.Controller())
@@ -145,6 +155,7 @@ def mainLoop():
             proceed()
 
         if m.advance():
+            #Begins the game loop
             gameLoop(0)
 
     changeMVC(1, title_m.Model(), title_v.View(), menu_c.Controller())
@@ -154,7 +165,9 @@ def gameLoop(inChapter):
     global game
     currChapter = inChapter
 
+    #Loop for every chapter in the game
     while (currChapter >= 0) and (currChapter < game.numOfChapters()):
+        
         theChapter = game.chapters[currChapter]
         chapterNameScreen(theChapter, currChapter)
         activeChars = chapterPrebattleSelect(theChapter)
