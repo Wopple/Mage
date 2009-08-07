@@ -552,38 +552,67 @@ class Model(model.Model):
     def findMovementArea(self, moverLoc):
         #Determines the movement area of a piece
         
+        numY = len(self.chapter.map)
+        numX = len(self.chapter.map[0])
+
         area = []
+
+        for y in range(numY):
+            area.append([])
+            for x in range (numX):
+                area[y].append(0)
+                
         moveRemain = self.field[moverLoc[1]][moverLoc[0]][0].mov
         if moveRemain < 0:
             moveRemain = 0
 
-        self.recurseMovement(area, moverLoc, moveRemain, '0')
+        area[moverLoc[1]][moverLoc[0]] = 2
 
-        return area
+        print "Starting Movement with " + str(moveRemain) + " movement points!"
+        print "--------------------------"
+        while moveRemain >= 0:
 
-    def recurseMovement(self, area, loc, moveRemain, prevDir):
-        #The recursive call component for findMovementArea
-        
-        if moveRemain == 0:
-            return
+            print "---New Depth!---"
 
-        if (loc[0] < 0) or (loc[1] < 0) or (loc[0] >= len(self.field[0])) or (loc[1] >= len(self.field)):
-            return
-        
-        addUnique(area, loc)
+            #Search for '1' squares
+            for y in range(len(self.field)):
+                for x in range(len(self.field[0])):
+                    if area[y][x] == 1:
+                        
+                    #Check all '1's for validity.  Valid squares become a '2',
+                    #Invalid squares become a '0'.
+                        if self.validMoveThrough((x, y)):
+                            area[y][x] = 2
 
-        if prevDir != 'l':
-            newLoc = (loc[0] - 1, loc[1])
-            self.recurseMovement(area, newLoc, (moveRemain - 1), 'r')
-        if prevDir != 'r':
-            newLoc = (loc[0] + 1, loc[1])
-            self.recurseMovement(area, newLoc, (moveRemain - 1), 'l')
-        if prevDir != 'u':
-            newLoc = (loc[0], loc[1] - 1)
-            self.recurseMovement(area, newLoc, (moveRemain - 1), 'd')
-        if prevDir != 'd':
-            newLoc = (loc[0], loc[1] + 1)
-            self.recurseMovement(area, newLoc, (moveRemain - 1), 'u')
+            #Search for '2' squares
+            for y in range(len(self.field)):
+                for x in range(len(self.field[0])):
+                    if area[y][x] == 2:
+                        
+                    #All squares around each '2' becomes a '1' for checking,
+                    #and the '2' then becomes a finalized '3'
+                        print " Changing (" + str(x) + ", " + str(y) + ") to '3'"
+                        area[y][x] = 3
+
+                        for (tempX, tempY) in ((x+1, y), (x-1, y), (x, y+1), (x, y-1)):
+                            if self.isWithinMap((tempX, tempY)):
+                                if area[tempY][tempX] == 0:
+                                    area[tempY][tempX] = 1
+                                    print "   (" + str(tempX) + ", " + str(tempY) + ") becomes a '1'"
+                            
+            moveRemain -= 1
+        print area
+
+        #Move all finalized '3' squares into a list
+        finalList = []
+        for y in range(len(self.field)):
+            for x in range(len(self.field[0])):
+                if area[y][x] == 3:
+                    finalList.append((x, y))
+                    
+            
+
+        return finalList
 
     def isInMovementArea(self, inLoc):
         #Determines if the given location is within the current
@@ -599,6 +628,9 @@ class Model(model.Model):
         #Determines if the given location is a valid position to
         #move to, excluding whether it is within the actual movement
         #area range (see isInMovementArea)
+
+        if not self.isWithinMap(inLoc):
+            return False
         
         x = inLoc[0]
         y = inLoc[1]
@@ -607,6 +639,33 @@ class Model(model.Model):
             return False
 
         return True
+
+    def validMoveThrough(self, inLoc):
+        #Determines if the given location is a valid position to
+        #move through, or if it blocks movement.
+
+        if not self.isWithinMap(inLoc):
+            return False
+
+        x = inLoc[0]
+        y = inLoc[1]
+
+        if len(self.field[y][x]) != 0:
+            if isinstance(self.field[y][x][0], enemy.Enemy):
+                return False
+
+        return True
+
+    def isWithinMap(self, inLoc):
+        #Determines whether a square is within the bounds of the map
+
+        x = inLoc[0]
+        y = inLoc[1]
+
+        if (x >= 0) and (x < len(self.field[0])) and (y >= 0) and (y < len(self.field)):
+            return True
+        else:
+            return False
 
     def closeMovement(self):
         #Cancels movement selection
