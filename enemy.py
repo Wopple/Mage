@@ -42,3 +42,7 @@ class Enemy(object):
     def getStatsOrig(self):
         return [self.stats[0], self.stats[1], self.stats[2], self.stats[3],
                 self.stats[4], self.stats[5], self.mov, self.hp]
+
+    # Returns a class which when called returns an AI object.
+    def getAI(self):
+        return ai.null.NullCharacterAI

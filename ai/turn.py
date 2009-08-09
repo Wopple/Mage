@@ -16,31 +16,26 @@
 
 import threading
 
-from model import Model
-
-""" The NullAI class tells the battle to end the enemy phase. """
-class NullAI(object):
-    def __init__(self, battle):
-        self.battle = battle
-
-    def run(self):
-        self.battle.nextPhase()
-
-""" The NullTurnAI constructs the turn order arbitrarily. """
-class NullTurnAI(threading.Thread):
+class TurnAI(threading.Thread):
     def __init__(self, battle, order):
-        super(NullTurnAI, self).__init__()
         self.battle = battle
         self.order = order
 
     def run(self):
-        for enemy in self.battle.enemies:
-            self.order.append(enemy)
+        playerCenter = self.getCenter(self.battle.characters)
+        enemyCenter = self.getCenter(self.battle.characters)
 
-""" The NullCharacterAI has the character do nothing. """
-class NullCharacterAI(threading.Thread):
-    def __init__(self, battle):
-        super(NullCharacterAI, self).__init__()
+    # Finds the center of the given list of objects.
+    # return: tuple of floats (x,y)
+    def getCenter(self, objects):
+        totalX = 0
+        totalY = 0
+        num = len(objects)
 
-    def run(self):
-        pass
+        for x in len(self.battle.field):
+            for y in len(self.battle.field[x]):
+                if self.battle.field[x][y][0] in objects:
+                    centerX += x
+                    centerY += y
+
+        return (float(totalX) / num, float(totalY) / num)

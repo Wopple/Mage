@@ -94,7 +94,10 @@ class Model(model.Model):
         self.startingRefill()
 
         # Set the ai for the battle.
-        self.enemy_ai = ai.null.NullAI(self)
+        self.enemy_ai = ai.AI(self)
+
+        self.players = property(self._players)
+        self.enemies = property(self._enemies)
 
     def goCheat(self, inCheat):
         if inCheat == 1:
@@ -427,6 +430,7 @@ class Model(model.Model):
         if self.phase == 1:
             self.phase = 2
             self.refreshMovement(False, True)
+            self.enemy_ai.reset()
         else:
             self.phase = 1
             self.refreshMovement(True, False)
@@ -751,3 +755,23 @@ class Model(model.Model):
                 newEnemy = enemy.Enemy(tempEnemy.name, tempEnemy.getStatsOrig(), tempEnemy.gift)
                 newEnemy.piece.changeSpriteSheet(tempEnemy.piece.spriteSheet)
                 self.insertActor(newEnemy, (x[2], x[3]))
+
+    def _players(self):
+        players = []
+
+        for i in self.field:
+            for j in i:
+                if isinstance(j[0], player.Player):
+                    player.append(j[0])
+
+        return players
+
+    def _enemies(self):
+        enemies = []
+
+        for i in self.field:
+            for j in i:
+                if isinstance(j[0], enemy.Enemy):
+                    enemies.append(j[0])
+
+        return enemies
