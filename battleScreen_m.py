@@ -572,11 +572,7 @@ class Model(model.Model):
 
         area[moverLoc[1]][moverLoc[0]] = 2
 
-        print "Starting Movement with " + str(moveRemain) + " movement points!"
-        print "--------------------------"
         while moveRemain >= 0:
-
-            print "---New Depth!---"
 
             #Search for '1' squares
             for y in range(len(self.field)):
@@ -595,17 +591,14 @@ class Model(model.Model):
                         
                     #All squares around each '2' becomes a '1' for checking,
                     #and the '2' then becomes a finalized '3'
-                        print " Changing (" + str(x) + ", " + str(y) + ") to '3'"
                         area[y][x] = 3
 
                         for (tempX, tempY) in ((x+1, y), (x-1, y), (x, y+1), (x, y-1)):
                             if self.isWithinMap((tempX, tempY)):
                                 if area[tempY][tempX] == 0:
                                     area[tempY][tempX] = 1
-                                    print "   (" + str(tempX) + ", " + str(tempY) + ") becomes a '1'"
                             
             moveRemain -= 1
-        print area
 
         #Move all finalized '3' squares into a list
         finalList = []
