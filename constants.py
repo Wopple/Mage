@@ -17,6 +17,7 @@
 import os
 import pygame
 import sys
+import ability
 
 pygame.mixer.init()
 
@@ -289,7 +290,6 @@ SOUNDS = []
 for sound in SOUND_FILES:
     tempFile = os.path.join(SOUND_PATH, sound)
     SOUNDS.append(pygame.mixer.Sound(tempFile))
-
 
 
 def fatalError():
