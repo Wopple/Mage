@@ -46,5 +46,4 @@ class Enemy(object):
 
     # Returns a class which when called returns an AI object.
     def getAI(self):
-        print "getting character ai class"
         return ai.null.NullCharacterAI

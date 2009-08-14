@@ -33,7 +33,6 @@ class AI(object):
         self.currentEnemy = 0
 
     def run(self):
-        print self.state, self.started, self.currentEnemy
         # Run the AI which determines the turn order.
         if self.state == "turn":
             if self.started:
