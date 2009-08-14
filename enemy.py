@@ -22,6 +22,7 @@ import random
 from constants import *
 
 import piece
+import ai
 
 class Enemy(object):
     def __init__(self, inName, inStats, inGift):
@@ -45,4 +46,5 @@ class Enemy(object):
 
     # Returns a class which when called returns an AI object.
     def getAI(self):
+        print "getting character ai class"
         return ai.null.NullCharacterAI

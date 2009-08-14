@@ -18,12 +18,16 @@ import threading
 
 class TurnAI(threading.Thread):
     def __init__(self, battle, order):
+        super(TurnAI, self).__init__()
         self.battle = battle
         self.order = order
 
     def run(self):
         playerCenter = self.getCenter(self.battle.characters)
         enemyCenter = self.getCenter(self.battle.characters)
+
+        for enemy in self.battle.enemies:
+            self.order.append(enemy)
 
     # Finds the center of the given list of objects.
     # return: tuple of floats (x,y)
@@ -32,10 +36,12 @@ class TurnAI(threading.Thread):
         totalY = 0
         num = len(objects)
 
-        for x in len(self.battle.field):
-            for y in len(self.battle.field[x]):
-                if self.battle.field[x][y][0] in objects:
-                    centerX += x
-                    centerY += y
+        for x in range(len(self.battle.field)):
+            for y in range(len(self.battle.field[x])):
+                fieldLocation = self.battle.field[x][y]
+                if len(fieldLocation) > 0:
+                    if fieldLocation[0] in objects:
+                        totalX += x
+                        totalY += y
 
         return (float(totalX) / num, float(totalY) / num)

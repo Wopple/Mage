@@ -96,9 +96,6 @@ class Model(model.Model):
         # Set the ai for the battle.
         self.enemy_ai = ai.AI(self)
 
-        self.players = property(self._players)
-        self.enemies = property(self._enemies)
-
     def goCheat(self, inCheat):
         if inCheat == 1:
             self.goForward = True
@@ -764,7 +761,11 @@ class Model(model.Model):
 
         for i in self.field:
             for j in i:
-                if isinstance(j[0], enemy.Enemy):
-                    enemies.append(j[0])
+                if len(j) > 0:
+                    if isinstance(j[0], enemy.Enemy):
+                        enemies.append(j[0])
 
         return enemies
+
+    players = property(_players)
+    enemies = property(_enemies)
