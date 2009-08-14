@@ -29,7 +29,7 @@ class Model(model.Model):
     def __init__(self):
         super(Model, self).__init__()
         tempRect = pygame.Rect( (50, 50), (200, 0) )
-        self.titleMenu = minimenu.MiniMenu(tempRect, ["Start New Game", "Load Game", "Quit"],
+        self.titleMenu = minimenu.MiniMenu(tempRect, ["Start New Game", "Load Game", "Ability Library", "Quit"],
                                            MAIN_MENU_FONT_SIZE, MAIN_MENU_COLOR_ON,
                                            MAIN_MENU_COLOR_OFF, MAIN_MENU_COLOR_BG)
         self.titleMenu.center(ENTIRE_SCREEN, True, True)
@@ -54,7 +54,7 @@ class Model(model.Model):
             return False
 
     def back(self):
-        if (self.confirmed == True) and (self.titleMenu.value() == 3):
+        if (self.confirmed == True) and (self.titleMenu.value() == 4):
             return True
         else:
             return False

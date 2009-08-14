@@ -144,6 +144,11 @@ def mainLoop():
                 proceed()
             if m.advance():
                 checker01 = True
+        elif m.titleMenu.value() == 3:
+            #Opens the Ability Library
+            changeMVC(11, abilityLibrary_m.Model(), abilityLibrary_v.View(), menu_c.Controller())
+            while not(m.back()):
+                proceed()
     if checker01:
         #Initiates the game model, which involves much loading and file reading
         missionPath = m.getCurrMission()[2]

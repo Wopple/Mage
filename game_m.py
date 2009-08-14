@@ -26,6 +26,7 @@ import menu
 import player
 import chapter
 import enemy
+import ability
 
 from constants import *
 
@@ -38,6 +39,7 @@ class Model(model.Model):
         self.players = []
         self.enemies = []
         self.chapters = []
+        self.abilities = []
         self.xp = 0
 
         self.missionPath = os.path.join(MISSION_PATH, inPath)
@@ -48,6 +50,9 @@ class Model(model.Model):
                 self.success = self.checkMissionFile()
             if self.success:
                 self.success = self.checkTileset()
+            if self.success:
+                self.checkerMessage("Abilities")
+                self.success = self.checkAbilities()
             if self.success:
                 self.checkerMessage("Player Characters")
                 self.success = self.checkCharacters()
@@ -200,6 +205,27 @@ class Model(model.Model):
             return False
 
         return True
+
+    def checkAbilities(self):
+        num = 0
+        checker = True
+        while checker:
+            self.checkerMessage("Ability " + str(num), 1)
+            tempText = ABILITY_FILE + str(num) + ABILITY_FILE_EXT
+            tempPath = os.path.join(self.missionPath, tempText)
+            if (os.path.exists(tempPath)):
+                success = self.buildAbility(tempPath)
+                if not success:
+                    return False
+                
+                num += 1
+            else:
+                checker = False
+
+        if num < 1:
+            return False
+
+        return True
             
 
     def buildCharacter(self, inPath, portrait):
@@ -300,11 +326,85 @@ class Model(model.Model):
         except:
             return False
 
+
+    def buildAbility(self, inPath):
+        try:
+            abilityFile = open(inPath)
+            
+            self.checkerMessage("Name", 2)
+            abilityName = abilityFile.readline().rstrip()
+            if not self.stringSizeChecker(abilityName):
+                return False
+
+            self.checkerMessage("Description", 2)
+            abilityDesc = abilityFile.readline().rstrip()
+            if not self.stringSizeChecker(abilityDesc, 2):
+                return False
+
+            self.checkerMessage("Range", 2)
+            abilityRangeMin = int(abilityFile.readline())
+            if not self.statSizeChecker(abilityRangeMin, True):
+                return False
+            
+            abilityRangeMax = int(abilityFile.readline())
+            if not self.statSizeChecker(abilityRangeMax, True):
+                return False
+
+            self.checkerMessage("Area of Effect", 2)
+            abilityAOE = int(abilityFile.readline())
+
+            self.checkerMessage("Damage", 2)
+            abilityDamage = float(abilityFile.readline())
+            if not self.statSizeChecker(abilityDamage, True):
+                return False
+
+            self.checkerMessage("Accuracy", 2)
+            abilityAccuracy = float(abilityFile.readline())
+            if not self.statSizeChecker(abilityAccuracy, True):
+                return False
+
+            self.checkerMessage("Stun", 2)
+            abilityStun = float(abilityFile.readline())
+            if (abilityStun < 0) or (abilityStun > 1):
+                return False
+
+            self.checkerMessage("Special Effect", 2)
+            abilitySpecial = int(abilityFile.readline())
+
+            self.checkerMessage("Mana Cost", 2)
+            abilityMana = []
+            for x in range (0, 4):
+                tempMana = int(abilityFile.readline())
+                if not self.statSizeChecker(tempMana, True):
+                    return False
+                abilityMana.append(tempMana)
+
+            self.checkerMessage("Stats used", 2)
+            abilityStatOff = abilityFile.readline().rstrip()
+            if not(abilityStatOff == "P" or abilityStatOff == "M"):
+                return False
+            abilityStatDef = abilityFile.readline().rstrip()
+            if not(abilityStatDef == "P" or abilityStatDef == "M"
+                   or abilityStatDef == "L"):
+                return False
+
+            self.checkerMessage("Finalizing", 2)
+            self.abilities.append(
+                ability.Ability(abilityName, abilityDesc, abilityRangeMin,
+                               abilityRangeMax, abilityAOE, abilityDamage,
+                               abilityAccuracy, abilityStun, abilitySpecial,
+                               abilityMana, abilityStatOff, abilityStatDef))
+
+            return True
+
+        except:
+            return False
+
     def buildChapter(self, inPath, inPath2, inPath3, inPath4):
         chapterFile = open(inPath)
         
         chapterName = chapterFile.readline()
-        if not self.stringSizeChecker(chapterName, True):
+        if not self.stringSizeChecker(chapterName, 1):
             return False
 
         self.checkerMessage("Map File", 2)
@@ -384,11 +484,13 @@ class Model(model.Model):
         mapFile.close()
         return True
 
-    def stringSizeChecker(self, inString, isChapter=False):
-        if isChapter:
+    def stringSizeChecker(self, inString, stringType=0):
+        if stringType == 1:
             maxSize = CHAPTER_NAME_STRING_MAX
-        else:
+        elif stringType == 0:
             maxSize = CHARACTER_STRING_MAX
+        else:
+            maxSize = ABILITY_DESC_STRING_MAX
 
         
         tempSize = len(inString)
@@ -397,8 +499,13 @@ class Model(model.Model):
         else:
             return False
 
-    def statSizeChecker(self, inInt):
-        if (inInt >= 1) and (inInt <= STAT_MAX):
+    def statSizeChecker(self, inInt, canBeZero=False):
+        if canBeZero:
+            statMin = 0
+        else:
+            statMin = 1
+        
+        if (inInt >= statMin) and (inInt <= STAT_MAX):
             return True
         else:
             return False
