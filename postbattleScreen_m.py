@@ -1,4 +1,4 @@
-# Copyright 2009 Christopher Czyzewski
+# Copyright 2009 Christopher Czyzewski, Daniel Tashjian
 # This file is part of Project Mage.
 #
 #    Project Mage is free software: you can redistribute it and/or modify

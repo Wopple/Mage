@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2009 Christopher Czyzewski
+# Copyright 2009 Christopher Czyzewski, Daniel Tashjian
 # This file is part of Project Mage.
 #
 #    Project Mage is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with Project Mage.  If not, see <http://www.gnu.org/licenses/>.
-
 import os
 import sys
 import pygame
@@ -55,6 +54,9 @@ import AI_c
 
 import game_m
 import game_v
+
+import abilityLibrary_m
+import abilityLibrary_v
 
 from constants import *
 
@@ -144,11 +146,6 @@ def mainLoop():
                 proceed()
             if m.advance():
                 checker01 = True
-        elif m.titleMenu.value() == 3:
-            #Opens the Ability Library
-            changeMVC(11, abilityLibrary_m.Model(), abilityLibrary_v.View(), menu_c.Controller())
-            while not(m.back()):
-                proceed()
     if checker01:
         #Initiates the game model, which involves much loading and file reading
         missionPath = m.getCurrMission()[2]
@@ -159,7 +156,11 @@ def mainLoop():
         while not(m.either()):
             proceed()
 
-        if m.advance():
+        if m.cheatery:
+            changeMVC(11, abilityLibrary_m.Model(game.abilities), abilityLibrary_v.View(), menu_c.Controller())
+            while not(m.back()):
+                proceed()
+        elif m.advance():
             #Begins the game loop
             gameLoop(0)
 

@@ -1,4 +1,4 @@
-# Copyright 2009 Christopher Czyzewski
+# Copyright 2009 Christopher Czyzewski, Daniel Tashjian
 # This file is part of Project Mage.
 #
 #    Project Mage is free software: you can redistribute it and/or modify
@@ -118,7 +118,8 @@ MENU_COLORS = {"red": (200, 10, 10),
                }
 FONT_COLORS = {"yellow": (180, 180, 5),
                "white": (250, 250, 250),
-               "gray": (120, 120, 120)
+               "gray": (120, 120, 120),
+               "black": (2, 2, 2)
                }
 
 AURA_COLORS = {"blue": (20, 90, 160),
@@ -181,6 +182,31 @@ CHAPTER_NAME_BG_PATTERN = "background3.png"
 CHAPTER_NAME_BG_PATTERN_SIZE = (100, 100)
 CHAPTER_NAME_BG_DIREC = 2
 CHAPTER_NAME_BG_SPEED = 1
+
+LIBRARY_BG_PATTERN = "background1.png"
+LIBRARY_BG_PATTERN_SIZE = (50, 50)
+LIBRARY_BG_DIREC = 0
+LIBRARY_BG_SPEED = 1
+
+CARD_TAB_SIZE = (75, 25)
+CARD_TAB_FILE = "tab"
+CARD_TAB_FILE_EXT = ".png"
+
+CARD_OUTTER_PADDING = 5
+CARD_INNER_PADDING = 3
+CARD_TAB_ROW_LENGTH = (CARD_TAB_SIZE[0] * 4) + (CARD_INNER_PADDING * 3)
+CARD_NEUTRAL_COLOR = (230, 230, 230)
+CARD_INDENT_COLOR = (180, 180, 180)
+CARD_NAME_SIZE = (CARD_TAB_ROW_LENGTH, 25)
+CARD_DESC_SIZE = (CARD_NAME_SIZE[0], 130)
+CARD_FONT = FONTS[0]
+CARD_FONT_SIZE_BIG = 20
+CARD_FONT_COLOR = FONT_COLORS["black"]
+
+tempXBlah =  CARD_TAB_ROW_LENGTH + (CARD_OUTTER_PADDING * 2)
+tempYBlah = (CARD_NAME_SIZE[1] + CARD_DESC_SIZE[1] + (CARD_OUTTER_PADDING * 2)
+             + CARD_TAB_SIZE[1] + (CARD_INNER_PADDING * 2))
+CARD_SIZE = (tempXBlah, tempYBlah)
 
 
 PLANNING_BG_IMAGE = "background1.png"

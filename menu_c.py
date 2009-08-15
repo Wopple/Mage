@@ -34,6 +34,10 @@ class Controller(controller.Controller):
                     self.model.confirm()
                 elif (event.key == K_z) or (event.key == K_ESCAPE):
                     self.model.cancel()
+                elif event.key == K_F1:
+                    self.model.pressCheat(1)
+                elif event.key == K_F2:
+                    self.model.pressCheat(2)
                 elif event.key == K_UP:
                     self.model.decMenu()
                 elif event.key == K_DOWN:

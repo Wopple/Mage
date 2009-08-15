@@ -41,6 +41,7 @@ class Model(model.Model):
         self.chapters = []
         self.abilities = []
         self.xp = 0
+        self.cheatery = False
 
         self.missionPath = os.path.join(MISSION_PATH, inPath)
 
@@ -97,7 +98,7 @@ class Model(model.Model):
 
         self.tiles = []
 
-        numOfRows = math.ceil(float(TILES_TOTAL) / float(TILES_PER_ROW))
+        numOfRows = int(math.ceil(float(TILES_TOTAL) / float(TILES_PER_ROW)))
         for y in range(numOfRows):
             for x in range(TILES_PER_ROW):
                 tempSurface = pygame.Surface(TILE_SIZE)
@@ -559,3 +560,8 @@ class Model(model.Model):
                 spaceString += " "
                 spaces -= 1
             print spaceString + "Checking " + message
+
+    def goCheat(self, inCheat):
+        if inCheat == 1:
+            self.cheatery = True
+            self.confirm()
