@@ -73,7 +73,7 @@ class Model(model.Model):
         self.setCursorPos(self.chapter.startingPos[0][0], self.chapter.startingPos[0][1])
         self.scrollMap()
 
-        
+        self.phaseAnimDone = False
         self.phase = 0
         self.menuOpen = False
         self.stationOpen = False
@@ -88,7 +88,8 @@ class Model(model.Model):
         self.movementArea = None
 
         #Removes the actions of player characters and enemies during the Setup Phase
-        self.refreshMovement(False, False)
+        self.refreshPlayers(0, 0, 0)
+        self.refreshEnemies(0, 0, 0)
 
         #Sets the starting HP and Mana of player characters
         self.startingRefill()
@@ -129,8 +130,8 @@ class Model(model.Model):
         #Updates all Actors on the Field
         self.updateActors()
 
-        #Runs enemy AI
-        if self.phase == 2:
+        #Run AI
+        if self.phase == 2 and self.phaseAnimDone:
             self.enemy_ai.run()
 
     def updateActors(self):
@@ -144,7 +145,11 @@ class Model(model.Model):
 
                 #Update Actor in square
                 if len(self.field[y][x]) > 0:
-                    self.field[y][x][0].piece.update(SPRITE_SHEET_IDLE, self.idleTicker.value())
+                    if self.field[y][x][0].piece.group == 0:
+                        tickerVal = self.idleTicker.value()
+                    else:
+                        tickerVal = self.activeTicker.value()
+                    self.field[y][x][0].piece.update(-1, tickerVal)
                     self.field[y][x][0].piece.location = self.setPieceDrawLocation(x, y)
 
     def cursorMoveUp(self):
@@ -198,6 +203,10 @@ class Model(model.Model):
     def cursorMoveSuccess(self, playSound=True):
         #Called when a cursor's position changes
         self.updateCornerInfo()
+
+        if not self.movementOpen:
+            self.updateActiveAnimation()
+        
         if playSound:
             self.cursor.playSound()
 
@@ -250,6 +259,15 @@ class Model(model.Model):
         #Called when the Phase Change Animation has finished
         if self.phase == 0:
             self.auras.append(tileAura.TileAura(AURA_COLORS["yellow"], self.chapter.startingPos))
+        elif self.phase == 1:
+            self.refreshPlayers(1, 1, 1)
+        elif self.phase == 2:
+            #Runs enemy AI
+            self.refreshEnemies(1, 1, 1)
+
+        self.phaseAnimDone = True
+        self.updateActiveAnimation()
+        self.updateCornerInfo()
 
     def setCursorPos(self, inX, inY):
         #Sets the cursor position to a given X and Y value
@@ -286,7 +304,6 @@ class Model(model.Model):
             self.stationOpen = False
             self.menuOpen = False
             self.insertActor(self.characters[self.charStation.position.value - 1], self.cursorTuple())
-            self.updateCornerInfo()
             
         elif self.menuOpen:
             #When Menu is open
@@ -332,7 +349,11 @@ class Model(model.Model):
             if self.phase == 1:
                 self.closeMovement()
             self.menuOpen = True
+            
         soundSystem.playSound(1)
+        if not self.movementOpen:
+            self.updateActiveAnimation()
+        self.updateCornerInfo()
 
     def cancel(self):
         #Occurs when the Cancel button is pressed
@@ -426,12 +447,13 @@ class Model(model.Model):
         #Advances to the next phase
         if self.phase == 1:
             self.phase = 2
-            self.refreshMovement(False, True)
+            self.refreshPlayers(0, 0, 2)
             self.enemy_ai.reset()
         else:
             self.phase = 1
-            self.refreshMovement(True, False)
+            self.refreshEnemies(0, 0, 2)
 
+        self.phaseAnimDone = False
         self.auras = []
 
     def insertActor(self, actor, pos):
@@ -541,14 +563,44 @@ class Model(model.Model):
             return True
         else:
             return False
-        
 
-    def refreshMovement(self, pMove, eMove):
-        #Refreshes character actions for the turn
-        
+    def refreshPlayers(self, move, action, spike):
+        #0 = Turn off, 1 = Turn on, 2 = Ignore
         for x in self.characters:
-            x.piece.hasMove = pMove
-            x.piece.hasAction = pMove
+            
+            if move == 1:
+                x.piece.hasMove = True
+            elif move == 0:
+                x.piece.hasMove = False
+
+            if action == 1:
+                x.piece.hasAction = True
+            elif action == 0:
+                x.piece.hasAction = False
+
+            if spike == 1:
+                x.piece.hasSpike = True
+            elif spike == 0:
+                x.piece.hasSpike = False
+
+    def refreshEnemies(self, move, action, spike):
+        #0 = Turn off, 1 = Turn on, 2 = Ignore
+        for x in self.enemies:
+            
+            if move == 1:
+                x.piece.hasMove = True
+            elif move == 0:
+                x.piece.hasMove = False
+
+            if action == 1:
+                x.piece.hasAction = True
+            elif action == 0:
+                x.piece.hasAction = False
+
+            if spike == 1:
+                x.piece.hasSpike = True
+            elif spike == 0:
+                x.piece.hasSpike = False
 
     def findMovementArea(self, moverLoc):
         #Determines the movement area of a piece
@@ -726,7 +778,12 @@ class Model(model.Model):
             side = False
         else:
             side = True
-        tempActor = self.getActorAtCursor()
+
+        if not self.currentTarget is None:
+            tempActor = self.getActor(self.currentTarget)
+        else:
+            tempActor = self.getActorAtCursor()
+        
         if tempActor == False:
             portrait = None
         elif isinstance(tempActor, enemy.Enemy):
@@ -746,13 +803,28 @@ class Model(model.Model):
                 newEnemy.piece.changeSpriteSheet(tempEnemy.piece.spriteSheet)
                 self.insertActor(newEnemy, (x[2], x[3]))
 
+    def updateActiveAnimation(self):
+
+        for x in self.players:
+            x.piece.group = 0
+
+        if not self.currentTarget is None:
+            temp = self.getActor(self.currentTarget)
+        else:
+            temp = self.getActorAtCursor()
+        if temp != False and isinstance(temp, player.Player):
+            if temp.piece.hasMove or temp.piece.hasAction:
+                if temp.piece.group == 0:
+                    temp.piece.group = 1
+                    self.activeTicker.reset()
+
     def _players(self):
         players = []
 
         for i in self.field:
             for j in i:
-                if isinstance(j[0], player.Player):
-                    player.append(j[0])
+                if len(j) > 0 and isinstance(j[0], player.Player):
+                    players.append(j[0])
 
         return players
 
@@ -762,7 +834,7 @@ class Model(model.Model):
         for i in self.field:
             for j in i:
                 if len(j) > 0:
-                    if isinstance(j[0], enemy.Enemy):
+                    if len(j) > 0 and isinstance(j[0], enemy.Enemy):
                         enemies.append(j[0])
 
         return enemies

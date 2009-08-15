@@ -20,6 +20,9 @@ import pygame
 
 import view
 
+import player
+import enemy
+
 from constants import *
 
 SYMBOL_ON = None
@@ -78,14 +81,16 @@ class View(view.View):
                                 matchCurr = self.model.matchCursorLoc((x, y))
                         else:
                             matchCurr = False
-                        tempPiece = self.model.field[y][x][0].piece
-                        self.drawSymbol(tempPiece.hasMove, tempPiece.hasAction, tempPiece.hasSpike, tempPiece.location, matchCurr, self.screen)
+
+                        if isinstance(self.model.field[y][x][0], player.Player):
+                            tempPiece = self.model.field[y][x][0].piece
+                            self.drawSymbol(tempPiece.hasMove, tempPiece.hasAction, tempPiece.hasSpike, tempPiece.location, matchCurr, self.screen)
 
     def drawSymbol(self, inMove, inAction, inSpike, inLoc, isCurrChar, screen):
         global SYMBOL_ON
         global SYMBOL_OFF
 
-        if isCurrChar:
+        if isCurrChar and self.model.phaseAnimDone:
             symbolSize = (SYMBOL_SIZE_LARGE, SYMBOL_SIZE_LARGE)
         else:
             symbolSize = (SYMBOL_SIZE_SMALL, SYMBOL_SIZE_SMALL)

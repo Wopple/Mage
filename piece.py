@@ -41,13 +41,15 @@ class Piece(object):
             self.spriteSheet
 
     def update(self, inGroup, inFrame):
-        self.group = inGroup
+        if inGroup != -1:
+            self.group = inGroup
         self.frame = inFrame
 
     def draw(self, screen):
         if not(self.spriteSheet is None) and self.visible:
             surface = pygame.Surface(PIECE_SIZE)
             surface.set_colorkey(TRANSPARENT_COLOR)
+            surface.fill(TRANSPARENT_COLOR)
             tempX = (PIECE_SIZE[0] * self.frame) * -1
             tempY = (PIECE_SIZE[1] * self.group) * -1
             surface.blit(self.spriteSheet, (tempX, tempY))
