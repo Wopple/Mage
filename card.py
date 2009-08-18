@@ -36,21 +36,36 @@ class Card(object):
 
 
         self.image = pygame.Surface(CARD_SIZE)
-        self.image.fill(CARD_NEUTRAL_COLOR)
+        self.image.fill(CARD_BORDER_COLOR_DARK)
+
+        tempX = CARD_SIZE[0] - (CARD_BORDER * 2)
+        tempY = CARD_SIZE[1] - (CARD_BORDER * 2)
+        tempFill = pygame.Surface((tempX, tempY))
+        tempFill.fill(CARD_BORDER_COLOR_LIGHT)
+        self.image.blit(tempFill, (CARD_BORDER, CARD_BORDER))
+
+        tempX = CARD_SIZE[0] - (CARD_BORDER * 4)
+        tempY = CARD_SIZE[1] - (CARD_BORDER * 4)
+        tempFill = pygame.Surface((tempX, tempY))
+        tempFill.fill(CARD_NEUTRAL_COLOR)
+        self.image.blit(tempFill, ((CARD_BORDER * 2), (CARD_BORDER * 2)))
+
+
+        
         self.rect = pygame.Rect((5, 5), CARD_SIZE)
 
         fontBig = pygame.font.Font(CARD_FONT, CARD_FONT_SIZE_BIG)
 
         for t in range(0, 4):
-            tempX = CARD_OUTTER_PADDING + ((CARD_INNER_PADDING + CARD_TAB_SIZE[0]) * t)
-            tempY = 0
+            tempX = (CARD_BORDER * 2) + CARD_OUTTER_PADDING + ((CARD_INNER_PADDING + CARD_TAB_SIZE[0]) * t)
+            tempY = (CARD_BORDER * 2)
             self.image.blit(TABS[t], (tempX, tempY))
 
         tempArea = textrect.render_textrect(ability.name, fontBig,
                                             pygame.Rect((0, 0),CARD_NAME_SIZE),
                                             CARD_FONT_COLOR, CARD_INDENT_COLOR, 0)
-        tempX = CARD_OUTTER_PADDING
-        tempY = CARD_OUTTER_PADDING + CARD_TAB_SIZE[1] + CARD_INNER_PADDING
+        tempX = (CARD_BORDER * 2) + CARD_OUTTER_PADDING
+        tempY = (CARD_BORDER * 2) + CARD_OUTTER_PADDING + CARD_TAB_SIZE[1] + CARD_INNER_PADDING
         self.image.blit(tempArea, (tempX, tempY))
 
         tempArea = textrect.render_textrect(ability.desc, fontBig,
@@ -66,3 +81,7 @@ class Card(object):
         newArea = pygame.Surface(inSize)
         newArea.fill(CARD_INDENT_COLOR)
         return newArea
+
+    def setLoc(self, inX, inY):
+        self.rect.left = inX
+        self.rect.top = inY

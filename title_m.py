@@ -54,7 +54,7 @@ class Model(model.Model):
             return False
 
     def back(self):
-        if (self.confirmed == True) and (self.titleMenu.value() == 4):
+        if (self.confirmed == True) and (self.titleMenu.value() == 3):
             return True
         else:
             return False

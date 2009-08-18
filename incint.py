@@ -17,10 +17,12 @@
 import sys
 
 class IncInt:
-    def __init__(self, in_value, in_min, in_max):
+    def __init__(self, in_value, in_min, in_max, bob=False):
         self.value = in_value
         self.minimum = in_min
         self.maximum = in_max
+        self.doesBob = bob
+        self.bobUp = True
 
         if self.minimum > self.maximum:
             print "Error in IncInt - Maximum value greater or equal to minimum value"
@@ -29,6 +31,10 @@ class IncInt:
 
         if (self.value < self.minimum) or (self.value > self.maximum):
             print "Error in IncInt - Value not in range"
+            sys.exit()
+
+        if self.doesBob != True and self.doesBob != False:
+            print "Error in IncInt - Bobbing variable not set to boolean"
             sys.exit()
 
     def increment(self):
@@ -61,3 +67,15 @@ class IncInt:
 
     def dec(self):
         self.decrement()
+
+    def bob(self):
+        if self.doesBob:
+            if self.bobUp:
+                self.inc()
+                if self.value >= self.maximum:
+                    self.bobUp = False
+            else:
+                self.dec()
+                if self.value <= self.minimum:
+                    self.bobUp = True
+                

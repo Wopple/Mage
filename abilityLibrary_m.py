@@ -43,9 +43,19 @@ class Model(model.Model):
 
     def update(self):
         self.background.update()
+        self.cardCollection.update()
 
     def decMenu(self):
         self.cardCollection.dec()
 
     def incMenu(self):
         self.cardCollection.inc()
+
+    def confirm(self):
+        pass
+
+    def cancel(self):
+        self.goBack = True
+
+    def back(self):
+        return self.goBack
