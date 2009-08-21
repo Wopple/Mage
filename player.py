@@ -28,6 +28,8 @@ class Player(object):
 
         self.name = inName
         self.className = inClass
+
+        #STR, MAG, SKI, VIT, WIL, SPD, MOVE, HP
         self.stats = [inStats[0], inStats[1], inStats[2],
                       inStats[3], inStats[4], inStats[5]]
         self.mov = inStats[6]

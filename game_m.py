@@ -160,7 +160,7 @@ class Model(model.Model):
                 if not success:
                     return False
                 
-                self.checkerMessage("Enemy Spritesheet", 2)
+                self.checkerMessage("Spritesheet", 2)
                 tempText = ENEMY_SPRITE + str(num) + ENEMY_SPRITE_EXT
                 tempPath = os.path.join(self.missionPath, tempText)
                 if not(os.path.exists(tempPath)):
@@ -317,8 +317,33 @@ class Model(model.Model):
                     return False
                 enemyGift.append(tempStat)
 
+            self.checkerMessage("Mana Stores", 3)
+            tempStores = enemyFile.readline().rstrip()
+            if tempStores == "T":
+                enemyStores = True
+            elif tempStores == "F":
+                enemyStores = False
+            else:
+                return False
+
+            self.checkerMessage("Abilities", 3)
+            abilityLine = enemyFile.readline()
+            abilitiesRaw = abilityLine.split("#")
+            abilitiesRefined = []
+            for ab in abilitiesRaw:
+                try:
+                    tempAb = int(ab)
+                    if tempAb < 0 or tempAb >= len(self.abilities):
+                        return False
+                    abilitiesRefined.append(self.abilities[tempAb])
+                except:
+                    return False
+            if len(abilitiesRefined) < 1:
+                return False
+
             self.checkerMessage("Finalizing", 3)
-            self.enemies.append(enemy.Enemy(enemyName, enemyStats, enemyGift))
+            self.enemies.append(enemy.Enemy(enemyName, enemyStats, enemyGift,
+                                            enemyStores, abilitiesRefined))
             
             return True
 

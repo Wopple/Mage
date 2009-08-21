@@ -25,9 +25,11 @@ import piece
 import ai
 
 class Enemy(object):
-    def __init__(self, inName, inStats, inGift):
+    def __init__(self, inName, inStats, inGift, inMage, inAbilities):
 
         self.name = inName
+
+        #STR, MAG, SKI, VIT, WIL, SPD, MOVE, HP
         self.stats = [inStats[0], inStats[1], inStats[2],
                       inStats[3], inStats[4], inStats[5]]
         self.mov = inStats[6]
@@ -36,6 +38,16 @@ class Enemy(object):
         self.gift = [inGift[0], inGift[1], inGift[2]]
 
         self.piece = piece.Piece()
+
+        self.isMage = inMage
+        if self.isMage:
+            self.mana = [20, 20, 20]
+        else:
+            self.mana = [0, 0, 0]
+
+        self.piece.mpCurr = self.mana
+
+        self.abilities = inAbilities
 
     def getStats(self):
         return self.stats
@@ -47,3 +59,20 @@ class Enemy(object):
     # Returns a class which when called returns an AI object.
     def getAI(self):
         return ai.null.NullCharacterAI
+
+    def canUseAbility(self, ability):
+        return all(map(lambda a, b: a <= b, ability.manaCost, self.piece.mpCurr))
+
+    def getUsableAbilities(self):
+        returnList = []
+        for ab in self.abilities:
+            if self.canUseAbility(ab):
+                returnList.append(ab)
+        return returnList
+
+    def getAbilityPower(self, ability):
+        if ability.statOff == "P":
+            offStat = self.stats[0]
+        else:
+            offStat = self.stats[1]
+        return float(ability.damage) * float(offStat)

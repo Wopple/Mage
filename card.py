@@ -50,8 +50,6 @@ class Card(object):
         tempFill.fill(CARD_NEUTRAL_COLOR)
         self.image.blit(tempFill, ((CARD_BORDER * 2), (CARD_BORDER * 2)))
 
-
-        
         self.rect = pygame.Rect((5, 5), CARD_SIZE)
 
         fontBig = pygame.font.Font(CARD_FONT, CARD_FONT_SIZE_BIG)
