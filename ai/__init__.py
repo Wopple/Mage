@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Project Mage.  If not, see <http://www.gnu.org/licenses/>.
 
+import threading
 import random  # remove this when unused
 
 import null
@@ -74,24 +75,22 @@ class AI(object):
 
         return None
 
-class CharacterAI(object):
+class CharacterAI(threading.Thread):
     def __init__(self, character, battle, plan):
-        super(NullCharacterAI, self).__init__()
+        super(CharacterAI, self).__init__()
         self.character = character
         self.battle = battle
         self.plan = plan 
 
     def run(self):
         # Decide where to move.
-
-        area = self.battle.findMovementArea(self.battle.locationOf(self))
-
-        self.plan.actions.append((ai.plan.MOVE, random.choice(area)))
+        location = self.battle.locationOf(self.character)
+        area = self.battle.findMovementArea(location)
+        self.plan.actions.append((plan.MOVE, random.choice(area)))
 
         # Decide what attack to perform.
-
         abilities = self.character.getUsableAbilities()
-        best = max(abilities, key=lambda a: self.enemy.getAbilityPower(a))
-        player = random.choice(self.battle.players)
-
-        self.plan.actions.append((ai.plan.ATTACK, best, player))
+        if abilities != []:
+            best = max(abilities, key=lambda a: self.enemy.getAbilityPower(a))
+            player = random.choice(self.battle.players)
+            self.plan.actions.append((plan.ATTACK, best, player))

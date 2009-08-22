@@ -57,7 +57,7 @@ class Enemy(object):
 
     # Returns a class which when called returns an AI object.
     def getAI(self):
-        return ai.null.NullCharacterAI
+        return ai.CharacterAI
 
     def canUseAbility(self, ability):
         return all(map(lambda a, b: a <= b, ability.manaCost, self.piece.mpCurr))

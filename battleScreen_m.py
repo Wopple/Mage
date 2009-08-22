@@ -619,7 +619,7 @@ class Model(model.Model):
 
         for y in range(numY):
             area.append([])
-            for x in range (numX):
+            for x in range(numX):
                 area[y].append(0)
                 
         moveRemain = self.field[moverLoc[1]][moverLoc[0]][0].mov
@@ -828,12 +828,12 @@ class Model(model.Model):
 
     # Returns the location of the given character.
     # None is returned if the character is not in the field.
-    def locactionOf(self, character):
-        for i in range(len(self.field)):
-            for j in range(len(self.field[i])):
-                if self.field[i][j] != []:
-                    if self.field[i][j][0] is character:
-                        return (i, j)
+    def locationOf(self, character):
+        for y in range(len(self.field)):
+            for x in range(len(self.field[y])):
+                if self.field[y][x] != []:
+                    if self.field[y][x][0] is character:
+                        return (x, y)
         return None
 
     def getAbilitiesFromCursorActor(self):
