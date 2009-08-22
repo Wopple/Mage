@@ -14,8 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Project Mage.  If not, see <http://www.gnu.org/licenses/>.
 
+import random  # remove this when unused
+
 import null
 import turn
+import plan
 import enemy
 
 class AI(object):
@@ -29,6 +32,7 @@ class AI(object):
         self.state = "turn"
         self.started = False
         self.enemies = []
+        self.plans = []
         self.numEnemies = 0
         self.currentEnemy = 0
 
@@ -40,10 +44,13 @@ class AI(object):
                     self.state = "enemies"
                     self.started = False
 
-                    # Create the list of AI"s for the enemies.
+                    # Create the list of AI's for the enemies.
                     for enemy in self.order:
-                        self.enemies.append(enemy.getAI()(self.battle))
-                        self.numEnemies = len(self.enemies)
+                        self.plans.append(plan.Plan(enemy))
+                        args = [enemy, self.battle, self.plans[-1]]
+                        self.enemies.append(enemy.getAI()(*args))
+
+                    self.numEnemies = len(self.enemies)
             else:
                 self.turn.start()
                 self.started = True
@@ -53,12 +60,38 @@ class AI(object):
                 self.state = "done"
             else:
                 if self.started:
+                    # Checking for when the thread stops.
                     if not self.enemies[self.currentEnemy].isAlive():
                         self.started = False
                         self.currentEnemy += 1
+                        return self.plans[self.currentEnemy - 1]
                 else:
                     self.enemies[self.currentEnemy].start()
                     self.started = True
         # Finish up.
         elif self.state == "done":
             self.battle.nextPhase()
+
+        return None
+
+class CharacterAI(object):
+    def __init__(self, character, battle, plan):
+        super(NullCharacterAI, self).__init__()
+        self.character = character
+        self.battle = battle
+        self.plan = plan 
+
+    def run(self):
+        # Decide where to move.
+
+        area = self.battle.findMovementArea(self.battle.locationOf(self))
+
+        self.plan.actions.append((ai.plan.MOVE, random.choice(area)))
+
+        # Decide what attack to perform.
+
+        abilities = self.character.getUsableAbilities()
+        best = max(abilities, key=lambda a: self.enemy.getAbilityPower(a))
+        player = random.choice(self.battle.players)
+
+        self.plan.actions.append((ai.plan.ATTACK, best, player))

@@ -39,7 +39,7 @@ class NullTurnAI(threading.Thread):
 
 """ The NullCharacterAI has the character do nothing. """
 class NullCharacterAI(threading.Thread):
-    def __init__(self, battle):
+    def __init__(self, character, battle, plan):
         super(NullCharacterAI, self).__init__()
 
     def run(self):
