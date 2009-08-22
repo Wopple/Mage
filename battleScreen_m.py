@@ -97,6 +97,9 @@ class Model(model.Model):
         # Set the ai for the battle.
         self.enemy_ai = ai.AI(self)
 
+        # Plan to execute for the enemy.
+        self.plan = None
+
     def goCheat(self, inCheat):
         if inCheat == 1:
             self.goForward = True
@@ -132,7 +135,10 @@ class Model(model.Model):
 
         #Run AI
         if self.phase == 2 and self.phaseAnimDone:
-            self.enemy_ai.run()
+            if self.plan is None:
+                self.plan = self.enemy_ai.run()
+            else:
+                self.plan = None  # Doing this hands control to the AI.
 
     def updateActors(self):
         for y in range(len(self.field)):
@@ -819,6 +825,17 @@ class Model(model.Model):
                     temp.piece.group = 1
                     self.activeTicker.reset()
 
+    # Returns the location of the given character.
+    # None is returned if the character is not in the field.
+    def locactionOf(self, character):
+        for i in range(len(self.field)):
+            for j in range(len(self.field[i])):
+                if self.field[i][j] != []:
+                    if self.field[i][j][0] is character:
+                        return (i, j)
+        return None
+
+    # Property for the list of players in the battle.
     def _players(self):
         players = []
 
@@ -829,6 +846,7 @@ class Model(model.Model):
 
         return players
 
+    # Property for the list of enemies in the battle.
     def _enemies(self):
         enemies = []
 
