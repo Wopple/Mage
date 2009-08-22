@@ -78,6 +78,7 @@ class Model(model.Model):
         self.menuOpen = False
         self.stationOpen = False
         self.movementOpen = False
+        self.cardsOpen = False
 
         #Builds the sub-panels
         self.buildCharStation()
@@ -104,8 +105,7 @@ class Model(model.Model):
         if inCheat == 1:
             self.goForward = True
         elif inCheat == 2:
-            if self.phase == 2:
-                self.nextPhase()
+            self.cardsOpen = True
 
     def advance(self):
         return self.goForward
@@ -327,6 +327,7 @@ class Model(model.Model):
                     fatalError()
                 self.nextPhase()
             elif self.battleMenu.text() == "Spell":
+                #self.cardsOpen = True
                 self.actionOutCharacter()
                 self.menuOpen = False
             elif self.battleMenu.text() == "Weapon":
@@ -834,6 +835,13 @@ class Model(model.Model):
                     if self.field[i][j][0] is character:
                         return (i, j)
         return None
+
+    def getAbilitiesFromCursorActor(self):
+        temp = self.getActorAtCursor()
+        if temp == False:
+            fatalError()
+
+        return temp.abilities
 
     # Property for the list of players in the battle.
     def _players(self):

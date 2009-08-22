@@ -44,6 +44,9 @@ import postbattleScreen_v
 import battleScreen_m
 import battleScreen_v
 
+import abilityViewer_m
+import abilityViewer_v
+
 import phaseAnim_m
 import phaseAnim_v
 
@@ -227,6 +230,13 @@ def chapterBattle(tiles, theChapter, activeChars, enemyList):
                 changeC(menu_c.Controller())
             else:
                 changeC(cursor_c.Controller())
+
+        if m.cardsOpen:
+            changeMVC(12, abilityViewer_m.Model(m.getAbilitiesFromCursorActor(), screen), abilityViewer_v.View(), menu_c.Controller())
+            while not (m.either()):
+                proceed()
+            changeMVC(8, battleModel, battleView, cursor_c.Controller())
+            m.cardsOpen = False
             
         
     return m.xpGained
