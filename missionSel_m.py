@@ -47,6 +47,15 @@ class Model(model.Model):
                 if (itemName != "") and (numOfMissions != 0):
                     self.missionList.append([itemName, numOfMissions, item])
 
+        def compare(a, b):
+            if a[2] < b[2]:
+                return -1
+            elif a[2] > b[2]:
+                return 1
+            else:
+                return 0
+        self.missionList.sort(compare)
+
         listSize = len(self.missionList)
 
         if listSize <= 0:
