@@ -30,8 +30,7 @@ class Enemy(object):
         self.name = inName
 
         #STR, MAG, SKI, VIT, WIL, SPD, MOVE, HP
-        self.stats = [inStats[0], inStats[1], inStats[2],
-                      inStats[3], inStats[4], inStats[5]]
+        self.stats = inStats[:6]
         self.mov = inStats[6]
         self.hp = inStats[7]
 

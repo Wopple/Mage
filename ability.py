@@ -16,6 +16,8 @@ class Ability(object):
         self.minRange = inMinRange
         self.maxRange = inMaxRange
 
+        self.AOE = inAOE
+
         self.damage = inDamage
         self.accuracy = inAccuracy
 
