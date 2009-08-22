@@ -799,7 +799,8 @@ class Model(model.Model):
         for x in self.chapter.obstacles:
             if x[0] == "E":
                 tempEnemy = self.enemyList[x[1]]
-                newEnemy = enemy.Enemy(tempEnemy.name, tempEnemy.getStatsOrig(), tempEnemy.gift)
+                newEnemy = enemy.Enemy(tempEnemy.name, tempEnemy.getStatsOrig(), tempEnemy.gift,
+                                       tempEnemy.isMage, tempEnemy.abilities)
                 newEnemy.piece.changeSpriteSheet(tempEnemy.piece.spriteSheet)
                 self.insertActor(newEnemy, (x[2], x[3]))
 
