@@ -86,11 +86,19 @@ class CharacterAI(threading.Thread):
         # Decide where to move.
         location = self.battle.locationOf(self.character)
         area = self.battle.findMovementArea(location)
-        self.plan.actions.append((plan.MOVE, random.choice(area)))
+        action = plan.Action(plan.MOVE)
+        dest = random.choice(area)
+        while self.battle.field[dest[0]][dest[1]] != []:
+            dest = random.choice(area)
+        action.destination = dest
+        self.plan.actions.append(action)
 
         # Decide what attack to perform.
         abilities = self.character.getUsableAbilities()
         if abilities != []:
             best = max(abilities, key=lambda a: self.enemy.getAbilityPower(a))
             player = random.choice(self.battle.players)
-            self.plan.actions.append((plan.ATTACK, best, player))
+            action = plan.Action(plan.ATTACK)
+            action.attack = best
+            action.target = player
+            self.plan.actions.append(action)

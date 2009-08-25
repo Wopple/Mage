@@ -138,6 +138,7 @@ class Model(model.Model):
             if self.plan is None:
                 self.plan = self.enemy_ai.run()
             else:
+                self.executePlan()
                 self.plan = None  # Doing this hands control to the AI.
 
     def updateActors(self):
@@ -145,6 +146,7 @@ class Model(model.Model):
 
             #Error checking for unbalanced grid
             if len(self.field[y]) != len(self.field[0]):
+                print 6
                 fatalError()
             
             for x in range(len(self.field[0])):
@@ -324,6 +326,7 @@ class Model(model.Model):
                 self.menuOpen = False
                 self.movementOpen = False
                 if self.stationOpen:
+                    print 7
                     fatalError()
                 self.nextPhase()
             elif self.battleMenu.text() == "Spell":
@@ -471,8 +474,10 @@ class Model(model.Model):
 
         try:
             if len(self.field[y][x]) > 0:
+                print 8
                 fatalError()
         except:
+            print 9
             fatalError()
 
         self.field[y][x] = []
@@ -482,6 +487,7 @@ class Model(model.Model):
             for x2 in range(len(self.field[y2])):
                 if (x2, y2) != (x, y):
                     if self.getActor((x2, y2)) == actor:
+                        print 10
                         fatalError()
 
     def removeActor(self, pos):
@@ -493,6 +499,7 @@ class Model(model.Model):
         try:
             self.field[y][x] = []
         except:
+            print 11
             fatalError()
 
     def getActor(self, pos):
@@ -533,6 +540,7 @@ class Model(model.Model):
                 success = True
                 break
         if not success:
+            print 12
             fatalError()
 
     def overMovableCharacter(self):
@@ -561,6 +569,7 @@ class Model(model.Model):
         #moving character.  Causes an error if there is no moving character.
         
         if self.currentTarget is None:
+            print 1
             fatalError()
 
         x = self.currentTarget[0]
@@ -737,12 +746,14 @@ class Model(model.Model):
         oy = self.currentTarget[1]
 
         if len(self.field[oy][ox]) != 1:
+            print 2
             fatalError()
 
         tx = self.cursorPos[0].value
         ty = self.cursorPos[1].value
 
         if len(self.field[ty][tx]) != 0:
+            print 3
             fatalError()
 
         self.field[ty][tx].append(self.field[oy][ox][0])
@@ -760,6 +771,7 @@ class Model(model.Model):
         y = charLoc[1]
 
         if len(self.field[y][x]) != 1:
+            print 4
             fatalError()
 
         self.field[y][x][0].piece.hasAction = False
@@ -825,6 +837,38 @@ class Model(model.Model):
                 if temp.piece.group == 0:
                     temp.piece.group = 1
                     self.activeTicker.reset()
+
+    def getAbilitiesFromCursorActor(self):
+        temp = self.getActorAtCursor()
+        if temp == False:
+            print 5
+            fatalError()
+
+        return temp.abilities
+
+    # Performs the action from the current plan.
+    def executePlan(self):
+        for action in self.plan.actions:
+            if action.type == ai.plan.MOVE:
+                temp1 = self.currentTarget
+                temp2 = self.cursorPos[0].value
+                temp3 = self.cursorPos[1].value
+                self.currentTarget = self.locationOf(self.plan.character)
+                self.cursorPos[0].value = action.destination[0]
+                self.cursorPos[1].value = action.destination[1]
+                self.moveCharacter()
+                self.currentTarget = temp1
+                self.cursorPos[0].value = temp2
+                self.cursorPos[1].value = temp3
+            elif action.type == ai.plan.ATTACK:
+                temp1 = self.cursorPos[0].value
+                temp2 = self.cursorPos[1].value
+                location = self.locationOf(self.plan.character)[0]
+                self.cursorPos[0].value = location[0]
+                self.cursorPos[1].value = location[1]
+                self.actionOutCharacter()
+                self.cursorPos[0].value = temp1
+                self.cursorPos[1].value = temp2
 
     # Returns the location of the given character.
     # None is returned if the character is not in the field.
