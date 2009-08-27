@@ -24,7 +24,7 @@ from constants import *
 import piece
 
 class Player(object):
-    def __init__(self, inName, inClass, inStats, inStatGrowths, inMana, inPortrait):
+    def __init__(self, inName, inClass, inStats, inStatGrowths, inMana, inPortrait, inAttack, inSpells):
 
         self.name = inName
         self.className = inClass
@@ -41,6 +41,9 @@ class Player(object):
         self.piece = piece.Piece()
         self.level = 1
         self.portrait = inPortrait
+
+        self.abilities = inSpells
+        self.attackAbility = inAttack
         
     def getStats(self):
         return self.stats

@@ -277,10 +277,28 @@ class Model(model.Model):
             if not self.manaSizeChecker(tempStat):
                 return False
             charMana.append(tempStat)
+
+        try:
+            self.checkerMessage("Abilities", 3)
+            abilityLine = charFile.readline()
+            abilitiesRaw = abilityLine.split("#")
+            abilitiesRefined = []
+            for ab in abilitiesRaw:
+                try:
+                    tempAb = int(ab)
+                    if tempAb < 0 or tempAb >= len(self.abilities):
+                        return False
+                    abilitiesRefined.append(self.abilities[tempAb])
+                except:
+                    return False
+            if len(abilitiesRefined) != NUM_OF_CHARACTER_SPELLS + 1:
+                return False
+        except:
+            return False
             
 
         self.checkerMessage("Finalizing", 3)
-        self.players.append(player.Player(charName, charClass, charStats, charStatGrowths, charMana, portrait))
+        self.players.append(player.Player(charName, charClass, charStats, charStatGrowths, charMana, portrait, abilitiesRefined[0], abilitiesRefined[1:]))
         
         return True
 

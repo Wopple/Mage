@@ -49,13 +49,28 @@ class Card(object):
         tempY = CARD_SIZE[1] - (CARD_BORDER * 2)
         tempFill = pygame.Surface((tempX, tempY))
         tempFill.fill(CARD_BORDER_COLOR_LIGHT)
-        self.image.blit(tempFill, (CARD_BORDER, CARD_BORDER))
+        self.image.blit(tempFill, ((CARD_BORDER), (CARD_BORDER)))
+        
 
         tempX = CARD_SIZE[0] - (CARD_BORDER * 4)
         tempY = CARD_SIZE[1] - (CARD_BORDER * 4)
-        tempFill = pygame.Surface((tempX, tempY))
-        tempFill.fill(CARD_NEUTRAL_COLOR)
-        self.image.blit(tempFill, ((CARD_BORDER * 2), (CARD_BORDER * 2)))
+
+        #Create backgrounds
+        BGs = []
+        for t in range(4):
+            if t == 3:
+                alphaR = 255
+            elif self.totalCost(ability.manaCost) == 0:
+                alphaR = 0
+            else:
+                alphaR = (float(ability.manaCost[t]) / float(self.totalCost(ability.manaCost))) * 255
+            BGs.append(self.createBG(tempX, tempY, t, alphaR))
+
+        
+        self.image.blit(BGs[3], (CARD_BORDER, CARD_BORDER))
+        for t in range(3):
+            self.image.blit(BGs[t], (CARD_BORDER * 2, CARD_BORDER * 2))
+        
 
         self.rect = pygame.Rect((5, 5), CARD_SIZE)
 
@@ -178,3 +193,15 @@ class Card(object):
     def setLoc(self, inX, inY):
         self.rect.left = inX
         self.rect.top = inY
+
+    def createBG(self, sizeX, sizeY, t, alphaR):
+        tempFill = pygame.Surface((sizeX, sizeY))
+        tempFill.fill(CARD_BG_COLORS[t])
+        tempFill.set_alpha(alphaR)
+        return tempFill
+
+    def totalCost(self, manaCost):
+        total = 0
+        for t in range(3):
+            total += manaCost[t]
+        return total
