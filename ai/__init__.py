@@ -88,7 +88,7 @@ class CharacterAI(threading.Thread):
         area = self.battle.findMovementArea(location)
         action = plan.Action(plan.MOVE)
         dest = random.choice(area)
-        while self.battle.field[dest[0]][dest[1]] != []:
+        while self.battle.field[dest[1]][dest[0]] != []:
             dest = random.choice(area)
         action.destination = dest
         self.plan.actions.append(action)
