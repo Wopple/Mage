@@ -146,8 +146,7 @@ class Model(model.Model):
 
             #Error checking for unbalanced grid
             if len(self.field[y]) != len(self.field[0]):
-                print 6
-                fatalError()
+                fatalError("Grid was unbalanced")
             
             for x in range(len(self.field[0])):
 
@@ -326,8 +325,7 @@ class Model(model.Model):
                 self.menuOpen = False
                 self.movementOpen = False
                 if self.stationOpen:
-                    print 7
-                    fatalError()
+                    fatalError("Turn was ended while character station was open")
                 self.nextPhase()
             elif self.battleMenu.text() == "Spell":
                 #self.cardsOpen = True
@@ -474,11 +472,9 @@ class Model(model.Model):
 
         try:
             if len(self.field[y][x]) > 0:
-                print 8
-                fatalError()
+                fatalError("Tried to insert actor into non-empty space")
         except:
-            print 9
-            fatalError()
+            fatalError("Grid was improper during insert")
 
         self.field[y][x] = []
         self.field[y][x].append(actor)
@@ -487,8 +483,7 @@ class Model(model.Model):
             for x2 in range(len(self.field[y2])):
                 if (x2, y2) != (x, y):
                     if self.getActor((x2, y2)) == actor:
-                        print 10
-                        fatalError()
+                        fatalError("Multiple copies of same actor on grid")
 
     def removeActor(self, pos):
         #Deletes an actor at a certain square
@@ -499,8 +494,7 @@ class Model(model.Model):
         try:
             self.field[y][x] = []
         except:
-            print 11
-            fatalError()
+            fatalError("Grid was improper during removal")
 
     def getActor(self, pos):
         #Returns an actor at a given square, or False if none is present
@@ -540,8 +534,7 @@ class Model(model.Model):
                 success = True
                 break
         if not success:
-            print 12
-            fatalError()
+            fatalError("Character was not returned to station successfully")
 
     def overMovableCharacter(self):
         #Returns whether the cursor is over an actor that the player can move
@@ -569,8 +562,7 @@ class Model(model.Model):
         #moving character.  Causes an error if there is no moving character.
         
         if self.currentTarget is None:
-            print 1
-            fatalError()
+            fatalError("Tried to check non-existant target")
 
         x = self.currentTarget[0]
         y = self.currentTarget[1]
@@ -746,15 +738,13 @@ class Model(model.Model):
         oy = self.currentTarget[1]
 
         if len(self.field[oy][ox]) != 1:
-            print 2
-            fatalError()
+            fatalError("Movement origin was empty")
 
         tx = self.cursorPos[0].value
         ty = self.cursorPos[1].value
 
         if len(self.field[ty][tx]) != 0:
-            print 3
-            fatalError()
+            fatalError("Movement destination was not empty")
 
         self.field[ty][tx].append(self.field[oy][ox][0])
         self.field[oy][ox] = []
@@ -771,8 +761,7 @@ class Model(model.Model):
         y = charLoc[1]
 
         if len(self.field[y][x]) != 1:
-            print 4
-            fatalError()
+            fatalError("Performed character actions on empty square")
 
         self.field[y][x][0].piece.hasAction = False
 
@@ -841,8 +830,7 @@ class Model(model.Model):
     def getAbilitiesFromCursorActor(self):
         temp = self.getActorAtCursor()
         if temp == False:
-            print 5
-            fatalError()
+            fatalError("Attempted to get abilities of empty square")
 
         return temp.abilities
 

@@ -355,8 +355,15 @@ for sound in SOUND_FILES:
     SOUNDS.append(pygame.mixer.Sound(tempFile))
 
 
-def fatalError():
+def fatalError(inString=None):
     print "Fatal Error!! - The impossible has happened"
+    try:
+        if inString is None:
+            print "Unknown Error"
+        else:
+            print inString
+    except:
+        print "Unknown Error"
     print "Program terminated"
     sys.exit()
 
