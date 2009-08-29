@@ -291,7 +291,7 @@ class Model(model.Model):
                     abilitiesRefined.append(self.abilities[tempAb])
                 except:
                     return False
-            if len(abilitiesRefined) != NUM_OF_CHARACTER_SPELLS + 1:
+            if len(abilitiesRefined) < NUM_OF_CHARACTER_SPELLS + 1:
                 return False
         except:
             return False

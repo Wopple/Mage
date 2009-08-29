@@ -79,6 +79,7 @@ class Model(model.Model):
         self.stationOpen = False
         self.movementOpen = False
         self.cardsOpen = False
+        self.targetOpen = False
 
         #Builds the sub-panels
         self.buildCharStation()
@@ -104,8 +105,6 @@ class Model(model.Model):
     def goCheat(self, inCheat):
         if inCheat == 1:
             self.goForward = True
-        elif inCheat == 2:
-            self.cardsOpen = True
 
     def advance(self):
         return self.goForward
@@ -328,11 +327,10 @@ class Model(model.Model):
                     fatalError("Turn was ended while character station was open")
                 self.nextPhase()
             elif self.battleMenu.text() == "Spell":
-                #self.cardsOpen = True
-                self.actionOutCharacter()
+                self.cardsOpen = True
                 self.menuOpen = False
             elif self.battleMenu.text() == "Weapon":
-                self.actionOutCharacter()
+                self.performAction(-1)
                 self.menuOpen = False
             elif self.battleMenu.text() == "Item":
                 self.actionOutCharacter()
@@ -342,7 +340,7 @@ class Model(model.Model):
             #When over a selectable character
             self.movementOpen = True
             self.currentTarget = (self.cursorPos[0].value, self.cursorPos[1].value)
-            self.movementArea = self.findMovementArea(self.currentTarget)
+            self.movementArea = self.findMovementArea(self.currentTarget, "P")
             self.auras.append(tileAura.TileAura(AURA_COLORS["blue"], self.movementArea))
             
         elif (self.movementOpen) and (not self.matchCursorLoc(self.currentTarget)):
@@ -350,6 +348,14 @@ class Model(model.Model):
             if self.validMoveSpot(self.cursorTuple()) and self.isInMovementArea(self.cursorTuple()):
                 self.moveCharacter()
                 self.closeMovement()
+        elif (self.targetOpen):
+            if self.cursorTuple() in self.movementArea:
+                self.targetOpen = False
+                self.resolveAction()
+                self.currentTarget = None
+                self.currentAbility = None
+                self.movementArea = None
+                self.auras = []
                 
         else:
             #Other circumstances - Build Menu
@@ -373,12 +379,21 @@ class Model(model.Model):
         elif self.menuOpen:
             #When Menu is open
             self.menuOpen = False
+
+        elif self.targetOpen:
+            #When choosing a target
+            self.targetOpen = False
+            self.setCursorPos(self.currentTarget[0], self.currentTarget[1])
+            self.currentTarget = None
+            self.movementArea = None
+            self.auras = []
             
         elif self.movementOpen:
             #When directing movement
             self.movementOpen = False
             self.setCursorPos(self.currentTarget[0], self.currentTarget[1])
             self.currentTarget = None
+            self.currentAbility = None
             self.movementArea = None
             self.auras = []
             
@@ -610,63 +625,21 @@ class Model(model.Model):
             elif spike == 0:
                 x.piece.hasSpike = False
 
-    def findMovementArea(self, moverLoc):
-        #Determines the movement area of a piece
-        
-        numY = len(self.chapter.map)
-        numX = len(self.chapter.map[0])
+    def findMovementArea(self, moverLoc, moverType):
+        if not (moverType == "P" or moverType == "E"):
+            fatalError()
+        moverType += "M"
 
-        area = []
+        path = self.mapPathMaker(moverLoc[0], moverLoc[1], self.field[moverLoc[1]][moverLoc[0]][0].mov, moverType)
 
-        for y in range(numY):
-            area.append([])
-            for x in range(numX):
-                area[y].append(0)
-                
-        moveRemain = self.field[moverLoc[1]][moverLoc[0]][0].mov
-        if moveRemain < 0:
-            moveRemain = 0
-
-        area[moverLoc[1]][moverLoc[0]] = 2
-
-        while moveRemain >= 0:
-
-            #Search for '1' squares
-            for y in range(len(self.field)):
-                for x in range(len(self.field[0])):
-                    if area[y][x] == 1:
-                        
-                    #Check all '1's for validity.  Valid squares become a '2',
-                    #Invalid squares become a '0'.
-                        if self.validMoveThrough((x, y)):
-                            area[y][x] = 2
-
-            #Search for '2' squares
-            for y in range(len(self.field)):
-                for x in range(len(self.field[0])):
-                    if area[y][x] == 2:
-                        
-                    #All squares around each '2' becomes a '1' for checking,
-                    #and the '2' then becomes a finalized '3'
-                        area[y][x] = 3
-
-                        for (tempX, tempY) in ((x+1, y), (x-1, y), (x, y+1), (x, y-1)):
-                            if self.isWithinMap((tempX, tempY)):
-                                if area[tempY][tempX] == 0:
-                                    area[tempY][tempX] = 1
-                            
-            moveRemain -= 1
-
-        #Move all finalized '3' squares into a list
-        finalList = []
-        for y in range(len(self.field)):
-            for x in range(len(self.field[0])):
-                if area[y][x] == 3:
-                    finalList.append((x, y))
-                    
-            
-
-        return finalList
+        if moverType[0] == "E":
+            path2 = []
+            for i in path:
+                if self.validMoveSpot(i):
+                    path2.append(i)
+            return path2
+        else:
+            return path
 
     def isInMovementArea(self, inLoc):
         #Determines if the given location is within the current
@@ -694,19 +667,37 @@ class Model(model.Model):
 
         return True
 
-    def validMoveThrough(self, inLoc):
+    def validMoveThrough(self, inLoc, moverType):
         #Determines if the given location is a valid position to
         #move through, or if it blocks movement.
 
         if not self.isWithinMap(inLoc):
             return False
 
+        if moverType[0] == "P":
+            typePlayer = True
+        elif moverType[0] == "E":
+            typePlayer = False
+        else:
+            fatalError("Incorrect mover type")
+
+        if moverType[1] == "M":
+            typeMovement = True
+        elif moverType[1] == "A":
+            typeMovement = False
+        else:
+            fatalError("Incorrect mover type")
+
         x = inLoc[0]
         y = inLoc[1]
 
         if len(self.field[y][x]) != 0:
             if isinstance(self.field[y][x][0], enemy.Enemy):
-                return False
+                if typePlayer and typeMovement:
+                    return False
+            if isinstance(self.field[y][x][0], player.Player):
+                if not typePlayer and typeMovement:
+                    return False
 
         return True
 
@@ -751,12 +742,16 @@ class Model(model.Model):
 
         self.getActor((tx, ty)).piece.hasMove = False
 
-    def actionOutCharacter(self):
-        #Removes the Primary Action from the character at
-        #the cursor's current position.  Causes an error if
-        #there is no character at this position
+    def actionOutCharacter(self, inLoc=None):
+        #Removes the Primary Action from the character at a given position.
+        #The default is the cursor's position.  Causes an error if there is
+        #no character at this position
+
+        if inLoc is None:
+            charLoc=self.cursorTuple()
+        else:
+            charLoc=inLoc
         
-        charLoc = self.cursorTuple()
         x = charLoc[0]
         y = charLoc[1]
 
@@ -875,6 +870,151 @@ class Model(model.Model):
 
         return temp.abilities
 
+    #Causes the actor at the cursor to perform an ability.
+    #Performs the first half, retrieving the ability and
+    #opening the targetting system.
+    #The ability performed is the index of the ability in their
+    #Abilities variable, or -1 for the standard attack of players.
+    #Causes errors if no actor is at the cursor, or if an
+    #improper argument is given.
+    def performAction(self, actionNum):
+
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
+
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        if (actionNum >= len(currChar.abilities)) and (actionNum != -1):
+            fatalError("Improper action argument")
+
+        if (actionNum == -1) and not isinstance(currChar, player.Player):
+            fatalError("Attempted to refer to standard attack of enemy")
+
+        #Gets the correct ability
+        if actionNum == -1:
+            currAbility = currChar.attackAbility
+        else:
+            currAbility = currChar.abilities[actionNum]
+
+        #Opens targetting system
+        self.currentTarget = self.cursorTuple()
+        self.currentAbility = currAbility
+        self.targetOpen = True
+        self.movementArea = self.findTargetArea(currAbility)
+        self.auras.append(tileAura.TileAura(AURA_COLORS["red"], self.movementArea))
+
+
+
+    #Performs the finalized action, with the user of
+    #the ability being stored in the target, the selected
+    #square for the ability to be performed at being at the
+    #cursor position, and the selected ability being stored
+    #in the currAbility variable.  Causes errors if these
+    #conditions are not valid.
+    def resolveAction(self):
+
+        if self.currentAbility is None:
+            fatalError()
+
+        currAbility = self.currentAbility
+
+        if self.currentTarget is None:
+            fatalError()
+
+        charOffense = self.getActor(self.currentTarget)
+
+        if charOffense == False:
+            fatalError()
+
+        charDefense = self.getActorAtCursor()
+
+        if charDefense == False:
+            print "Used " + currAbility.name + " on empty square " + str(self.cursorTuple())
+        else:
+            print "Used " + currAbility.name + " on " + charDefense.name + " at " + str(self.cursorTuple())
+        
+        #Uses up target's limited amount of actions
+        self.actionOutCharacter(self.currentTarget)
+
+    def findTargetArea(self, currAbility):
+        areaMax = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.maxRange, "PA")
+        areaMin = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.minRange - 1, "PA")
+
+        for i in range(len(areaMax)):
+            for j in range(len(areaMin)):
+                if areaMax[i] == areaMin[j]:
+                    areaMax[i] = "REMOVE"
+                    
+        finalArea = []
+        for i in areaMax:
+            if i != "REMOVE":
+                finalArea.append(i)
+
+        return finalArea
+
+
+
+    def mapPathMaker(self, inX, inY, moveRemain, moverType):
+
+        numY = len(self.chapter.map)
+        numX = len(self.chapter.map[0])
+
+        area = []
+
+        for y in range(numY):
+            area.append([])
+            for x in range(numX):
+                area[y].append(0)
+
+        if moveRemain == -1:
+            return area
+
+        if moveRemain < 0:
+            moveRemain = 0
+
+        area[inY][inX] = 2
+        
+        while moveRemain >= 0:
+
+            #Search for '1' squares
+            for y in range(len(self.field)):
+                for x in range(len(self.field[0])):
+                    if area[y][x] == 1:
+                        
+                    #Check all '1's for validity.  Valid squares become a '2',
+                    #Invalid squares become a '0'.
+                        if self.validMoveThrough((x, y), moverType):
+                            area[y][x] = 2
+
+            #Search for '2' squares
+            for y in range(len(self.field)):
+                for x in range(len(self.field[0])):
+                    if area[y][x] == 2:
+                        
+                    #All squares around each '2' becomes a '1' for checking,
+                    #and the '2' then becomes a finalized '3'
+                        area[y][x] = 3
+
+                        for (tempX, tempY) in ((x+1, y), (x-1, y), (x, y+1), (x, y-1)):
+                            if self.isWithinMap((tempX, tempY)):
+                                if area[tempY][tempX] == 0:
+                                    area[tempY][tempX] = 1
+                            
+            moveRemain -= 1
+
+        #Move all finalized '3' squares into a list
+        finalList = []
+        for y in range(len(self.field)):
+            for x in range(len(self.field[0])):
+                if area[y][x] == 3:
+                    finalList.append((x, y))
+                    
+        return finalList
+        
     # Property for the list of players in the battle.
     def _players(self):
         players = []

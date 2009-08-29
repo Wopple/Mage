@@ -56,11 +56,17 @@ class Model(model.Model):
         self.cardCollection.inc()
 
     def confirm(self):
-        pass
+        self.goForward = True
+
+    def advance(self):
+        return self.goForward
 
     def cancel(self):
         self.goBack = True
 
     def back(self):
         return self.goBack
+
+    def getSel(self):
+        return self.cardCollection.selection.value
 

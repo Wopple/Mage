@@ -235,6 +235,8 @@ def chapterBattle(tiles, theChapter, activeChars, enemyList):
             changeMVC(12, abilityViewer_m.Model(m.getAbilitiesFromCursorActor(), screen), abilityViewer_v.View(), menu_c.Controller())
             while not (m.either()):
                 proceed()
+            if m.advance():
+                battleModel.performAction(m.getSel())
             changeMVC(8, battleModel, battleView, cursor_c.Controller())
             m.cardsOpen = False
             
