@@ -87,11 +87,17 @@ class CharacterAI(threading.Thread):
         location = self.battle.locationOf(self.character)
         area = self.battle.findMovementArea(location, "E")
         action = plan.Action(plan.MOVE)
-        dest = random.choice(area)
-        while self.battle.field[dest[1]][dest[0]] != []:
+
+        if area != []:
             dest = random.choice(area)
-        action.destination = dest
-        self.plan.actions.append(action)
+
+            # Make sure the ai does not pick a
+            # location where there exists a character.
+            while self.battle.field[dest[1]][dest[0]] != []:
+                dest = random.choice(area)
+
+            action.destination = dest
+            self.plan.actions.append(action)
 
         # Decide what attack to perform.
         abilities = self.character.getUsableAbilities()
