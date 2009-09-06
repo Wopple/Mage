@@ -40,6 +40,8 @@ class Model(model.Model):
     def __init__(self, tiles, theChapter, activeChars, enemyList):
         super(Model, self).__init__()
 
+        random.seed()
+
         #Creates the background
         self.background = background.Background(pygame.Rect((0, 0), SCREEN_SIZE), STARFIELD_PATTERN, STARFIELD_PATTERN_SIZE)
 
@@ -335,6 +337,15 @@ class Model(model.Model):
             elif self.battleMenu.text() == "Item":
                 self.actionOutCharacter()
                 self.menuOpen = False
+
+        elif (self.targetOpen):
+            if self.cursorTuple() in self.movementArea:
+                self.targetOpen = False
+                self.resolveAction()
+                self.currentTarget = None
+                self.currentAbility = None
+                self.movementArea = None
+                self.auras = []
                 
         elif (self.movementOpen == False) and (self.overMovableCharacter()):
             #When over a selectable character
@@ -347,16 +358,7 @@ class Model(model.Model):
             #When directing movement and not over the moving character
             if self.validMoveSpot(self.cursorTuple()) and self.isInMovementArea(self.cursorTuple()):
                 self.moveCharacter()
-                self.closeMovement()
-        elif (self.targetOpen):
-            if self.cursorTuple() in self.movementArea:
-                self.targetOpen = False
-                self.resolveAction()
-                self.currentTarget = None
-                self.currentAbility = None
-                self.movementArea = None
-                self.auras = []
-                
+                self.closeMovement()    
         else:
             #Other circumstances - Build Menu
             self.buildMenu()
@@ -936,6 +938,13 @@ class Model(model.Model):
             print "Used " + currAbility.name + " on empty square " + str(self.cursorTuple())
         else:
             print "Used " + currAbility.name + " on " + charDefense.name + " at " + str(self.cursorTuple())
+            hitChance = self.calculateHitChance(charOffense, charDefense, currAbility)
+            print str(hitChance) + "% chance to hit"
+            if self.rollForHit(hitChance):
+                damage = self.calculateDamage(charOffense, charDefense, currAbility)
+                print "Hit for " + str(damage) + " damage"
+            else:
+                print "Miss"
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)
@@ -955,8 +964,6 @@ class Model(model.Model):
                 finalArea.append(i)
 
         return finalArea
-
-
 
     def mapPathMaker(self, inX, inY, moveRemain, moverType):
 
@@ -1014,6 +1021,56 @@ class Model(model.Model):
                     finalList.append((x, y))
                     
         return finalList
+
+    def calculateDamage(self, attacker, defender, currAbility):
+        if currAbility.statOff == "P":
+            offense = attacker.stats[0]
+        elif currAbility.statOff == "M":
+            offense = attacker.stats[1]
+        else:
+            fatalError("Ability has improper offensive stat reference")
+
+        if currAbility.statDef == "P":
+            defense = defender.stats[3]
+        elif currAbility.statDef == "M":
+            defense = defender.stats[4]
+        elif currAbility.statDef == "L":
+            if defender.stats[3] < defender.stats[4]:
+                defense = defender.stats[3]
+            else:
+                defense = defender.stats[4]
+        else:
+            fatalError("Ability has improper defensive stat reference")
+
+        total = int((offense - defense + BASE_DAMAGE) * currAbility.damage)
+
+        if total < 0:
+            total = 0
+        if total > DAMAGE_CAP:
+            total = DAMAGE_CAP
+
+        print "Damage Formula:  " + str(offense) + " offense - " + str(defense) + " defense + " + str(BASE_DAMAGE) + " BASE = " + str(total)
+
+        return total
+
+    def calculateHitChance(self, attacker, defender, currAbility):
+        offense = attacker.stats[2]
+        defense = defender.stats[5]
+
+        total = int((((offense - defense) * HIT_CHANCE_INCREMENT) + BASE_HIT_CHANCE) * currAbility.accuracy)
+
+        if total < 0:
+            total = 0
+        if total > 100:
+            total = 100
+
+        print "Accuracy Formula:  ((" + str(offense) + " offense - " + str(defense) + " defense) * " + str(HIT_CHANCE_INCREMENT) + ") + " + str(BASE_HIT_CHANCE) + " BASE = " + str(total)
+
+        return total
+
+    def rollForHit(self, hitChance):
+        dice = random.randint(1, 100)
+        return (dice <= hitChance)
         
     # Property for the list of players in the battle.
     def _players(self):
