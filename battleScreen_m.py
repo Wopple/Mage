@@ -35,6 +35,7 @@ import player
 import cornerInfo
 import ai
 import enemy
+import battleText
 
 class Model(model.Model):
     def __init__(self, tiles, theChapter, activeChars, enemyList):
@@ -53,6 +54,7 @@ class Model(model.Model):
         self.enemyList = enemyList
         self.tiles = tiles
         self.auras = []
+        self.battleText = []
         self.chapter = theChapter
         self.characters = activeChars
         self.goForward = False
@@ -141,6 +143,14 @@ class Model(model.Model):
             else:
                 self.executePlan()
                 self.plan = None  # Doing this hands control to the AI.
+
+        #Update BattleText
+        tempList = []
+        for BT in self.battleText:
+            BT.update()
+            if not BT.remove:
+                tempList.append(BT)
+        self.battleText = tempList
 
     def updateActors(self):
         for y in range(len(self.field)):
@@ -936,6 +946,7 @@ class Model(model.Model):
 
         if charDefense == False:
             print "Used " + currAbility.name + " on empty square " + str(self.cursorTuple())
+            tempBT = battleText.BattleText("No Target", FONT_COLORS["black"])
         else:
             print "Used " + currAbility.name + " on " + charDefense.name + " at " + str(self.cursorTuple())
             hitChance = self.calculateHitChance(charOffense, charDefense, currAbility)
@@ -943,8 +954,13 @@ class Model(model.Model):
             if self.rollForHit(hitChance):
                 damage = self.calculateDamage(charOffense, charDefense, currAbility)
                 print "Hit for " + str(damage) + " damage"
+                tempBT = battleText.BattleText(str(damage), FONT_COLORS["red"])
             else:
                 print "Miss"
+                tempBT = battleText.BattleText("Miss", FONT_COLORS["black"])
+
+        #Add BattleText
+        self.battleText.append(tempBT)
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)

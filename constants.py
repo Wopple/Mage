@@ -121,7 +121,8 @@ MENU_COLORS = {"red": (200, 10, 10),
 FONT_COLORS = {"yellow": (180, 180, 5),
                "white": (250, 250, 250),
                "gray": (120, 120, 120),
-               "black": (2, 2, 2)
+               "black": (2, 2, 2),
+               "red": (240, 20, 20)
                }
 
 AURA_COLORS = {"blue": (20, 90, 160),
