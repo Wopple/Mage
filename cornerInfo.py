@@ -20,6 +20,7 @@ import pygame
 import math
 
 import portrait
+import meter
 
 from constants import *
 
@@ -27,15 +28,36 @@ class CornerInfo(object):
     def __init__(self):
 
         sizeX = CORNER_INFO_PORTRAIT_SIZE + (CORNER_INFO_PADDING * 2)
-        sizeY = CORNER_INFO_PORTRAIT_SIZE + (CORNER_INFO_PADDING * 2)
-        self.rect = pygame.Rect((0, 0), (sizeX, sizeY))
+        sizeY = CORNER_INFO_PORTRAIT_SIZE + (CORNER_INFO_PADDING * 3) + CORNER_INFO_BAR_SIZE[1]
+        sizeX2 = sizeX
+        sizeY2 = sizeY + (CORNER_INFO_PADDING * 4) + (CORNER_INFO_BAR_SIZE[1] * 3) + CORNER_INFO_DIVIDER_SIZE[1]
+        self.sizes = [(sizeX, sizeY), (sizeX2, sizeY2)]
+        self.rect = pygame.Rect((0, 0), self.sizes[0])
         self.portrait = None
+        self.hp = 0
+        self.hpMax = 0
+        self.mana = 0
+        self.manaMax = 0
+        self.isMage = False
 
     def update(self, side, in_portrait, in_hp, in_hpMax, in_mana, in_manaMax, inMage):
         if not in_portrait is None:
             self.portrait = portrait.Portrait(in_portrait, (CORNER_INFO_PORTRAIT_SIZE, CORNER_INFO_PORTRAIT_SIZE), (0,0))
         else:
             self.portrait = None
+
+        self.hp = in_hp
+        self.hpMax = in_hpMax
+        self.mana = in_mana
+        self.manaMax = in_manaMax
+        self.isMage = inMage
+
+        if self.isMage:
+            tempVal = 1
+        else:
+            tempVal = 0
+        self.rect.width = self.sizes[tempVal][0]
+        self.rect.height = self.sizes[tempVal][1]
         
         #left = True, right = False
         if side:
@@ -49,7 +71,38 @@ class CornerInfo(object):
             mainPane = pygame.Surface((self.rect.width, self.rect.height))
             mainPane.fill(CORNER_INFO_COLOR)
             mainPane.set_alpha(CORNER_INFO_ALPHA)
-            self.portrait.rect.left = self.rect.left + CORNER_INFO_PADDING
-            self.portrait.rect.top = self.rect.top + CORNER_INFO_PADDING
+            self.portrait.rect.left = CORNER_INFO_PADDING
+            self.portrait.rect.top = CORNER_INFO_PADDING
+            self.portrait.draw(mainPane)
+
+            tempX = CORNER_INFO_PADDING
+            tempY = (CORNER_INFO_PADDING * 2) + CORNER_INFO_PORTRAIT_SIZE
+            mainPane.blit(self.createBar(0), (tempX, tempY))
+            if self.isMage:
+                tempY += CORNER_INFO_PADDING + CORNER_INFO_BAR_SIZE[1]
+                mainPane.blit(self.createDivider(), (tempX, tempY))
+                tempY += CORNER_INFO_PADDING + CORNER_INFO_DIVIDER_SIZE[1]
+                for i in range(1, 4):
+                    mainPane.blit(self.createBar(i), (tempX, tempY))
+                    tempY += CORNER_INFO_PADDING + CORNER_INFO_BAR_SIZE[1]
+            
             screen.blit(mainPane, self.rect.topleft)
-            self.portrait.draw(screen)
+
+    def createBar(self, inVal):
+        result = pygame.Surface(CORNER_INFO_BAR_SIZE)
+
+        if inVal == 0:
+            stat = self.hp
+            statMax = self.hpMax
+        else:
+            stat = self.mana[inVal-1]
+            statMax = self.manaMax[inVal-1]
+
+        result.fill(CORNER_INFO_BAR_COLORS[inVal])
+
+        return result
+
+    def createDivider(self):
+        result = pygame.Surface(CORNER_INFO_DIVIDER_SIZE)
+        result.fill(CORNER_INFO_DIVIDER_COLOR)
+        return result
