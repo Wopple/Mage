@@ -122,13 +122,21 @@ FONT_COLORS = {"yellow": (180, 180, 5),
                "white": (250, 250, 250),
                "gray": (120, 120, 120),
                "black": (2, 2, 2),
-               "red": (240, 20, 20)
+               "red": (240, 20, 20),
+               "green": (5, 230, 40)
                }
 
 AURA_COLORS = {"blue": (20, 90, 160),
                "red": (180, 30, 30),
                "yellow": (180, 150, 30)
                }
+
+BATTLE_TEXT_THRESHOLD = 15
+BATTLE_TEXT_REMOVAL_VALUE = 35
+BATTLE_TEXT_SIZE = (60, 24)
+BATTLE_TEXT_ABOVE = 3
+BATTLE_TEXT_FONT_SIZE = 16
+BATTLE_TEXT_FONT = FONTS[0]
 
 CURSOR_IMAGE = "cursor1.png"
 CURSOR_SIZE = (6, 6)

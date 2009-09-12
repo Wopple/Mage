@@ -53,6 +53,8 @@ class View(view.View):
         self.drawAuras()
         self.drawActors()
         self.model.cursor.draw(self.screen)
+        for i in self.model.battleText:
+            i.draw(self.screen)
         if self.model.menuOpen:
             self.model.battleMenu.draw(self.screen)
         if self.model.stationOpen:

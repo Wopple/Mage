@@ -145,9 +145,13 @@ class Model(model.Model):
                 self.plan = None  # Doing this hands control to the AI.
 
         #Update BattleText
-        tempList = []
+        
         for BT in self.battleText:
             BT.update()
+            if BT.count < BATTLE_TEXT_THRESHOLD:
+                break
+        tempList = []
+        for BT in self.battleText:
             if not BT.remove:
                 tempList.append(BT)
         self.battleText = tempList
@@ -944,9 +948,11 @@ class Model(model.Model):
 
         charDefense = self.getActorAtCursor()
 
+        tempBTLoc = ( (charDefense.piece.location[0] + (PIECE_SIZE[0] / 2) - (BATTLE_TEXT_SIZE[0] / 2)),
+                      charDefense.piece.location[1] - BATTLE_TEXT_SIZE[1] - BATTLE_TEXT_ABOVE)
         if charDefense == False:
             print "Used " + currAbility.name + " on empty square " + str(self.cursorTuple())
-            tempBT = battleText.BattleText("No Target", FONT_COLORS["black"])
+            tempBT = battleText.BattleText("No Target", FONT_COLORS["black"], tempBTLoc)
         else:
             print "Used " + currAbility.name + " on " + charDefense.name + " at " + str(self.cursorTuple())
             hitChance = self.calculateHitChance(charOffense, charDefense, currAbility)
@@ -954,13 +960,16 @@ class Model(model.Model):
             if self.rollForHit(hitChance):
                 damage = self.calculateDamage(charOffense, charDefense, currAbility)
                 print "Hit for " + str(damage) + " damage"
-                tempBT = battleText.BattleText(str(damage), FONT_COLORS["red"])
+                tempBT = battleText.BattleText(str(damage), FONT_COLORS["red"], tempBTLoc)
             else:
                 print "Miss"
-                tempBT = battleText.BattleText("Miss", FONT_COLORS["black"])
+                tempBT = battleText.BattleText("Miss", FONT_COLORS["black"], tempBTLoc)
 
         #Add BattleText
         self.battleText.append(tempBT)
+
+        self.battleText.append(battleText.BattleText("Great!", FONT_COLORS["green"], tempBTLoc))
+        self.battleText.append(battleText.BattleText("Go!", FONT_COLORS["black"], tempBTLoc))
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)
