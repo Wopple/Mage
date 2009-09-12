@@ -956,8 +956,9 @@ class Model(model.Model):
 
         charDefense = self.getActorAtCursor()
 
-        tempBTLoc = ( (charDefense.piece.location[0] + (PIECE_SIZE[0] / 2) - (BATTLE_TEXT_SIZE[0] / 2)),
-                      charDefense.piece.location[1] - BATTLE_TEXT_SIZE[1] - BATTLE_TEXT_ABOVE)
+        tempPos = self.genCursorPos()
+        tempBTLoc = ( (tempPos[0] + (TILE_SIZE[0] / 2) - (BATTLE_TEXT_SIZE[0] / 2)),
+                      tempPos[1] - BATTLE_TEXT_SIZE[1] - BATTLE_TEXT_ABOVE)
         if charDefense == False:
             print "Used " + currAbility.name + " on empty square " + str(self.cursorTuple())
             tempBT = battleText.BattleText("No Target", FONT_COLORS["black"], tempBTLoc)
