@@ -60,6 +60,12 @@ def render_textrect(string, font, rect, text_color, background_color, justificat
 
     surface = pygame.Surface(rect.size)
     if transparent:
+        background_color = []
+        for i in range(3):
+            tempVal = text_color[i] - 3
+            if tempVal < 0:
+                tempVal = 0
+            background_color.append(tempVal)
         surface.set_colorkey(background_color)
     surface.fill(background_color)
 

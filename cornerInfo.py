@@ -21,6 +21,7 @@ import math
 
 import portrait
 import meter
+import textrect
 
 from constants import *
 
@@ -28,9 +29,9 @@ class CornerInfo(object):
     def __init__(self):
 
         sizeX = CORNER_INFO_PORTRAIT_SIZE + (CORNER_INFO_PADDING * 2)
-        sizeY = CORNER_INFO_PORTRAIT_SIZE + (CORNER_INFO_PADDING * 3) + CORNER_INFO_BAR_SIZE[1]
+        sizeY = CORNER_INFO_PORTRAIT_SIZE + (CORNER_INFO_PADDING * 3) + (CORNER_INFO_BAR_SIZE[1] * 2)
         sizeX2 = sizeX
-        sizeY2 = sizeY + (CORNER_INFO_PADDING * 4) + (CORNER_INFO_BAR_SIZE[1] * 3) + CORNER_INFO_DIVIDER_SIZE[1]
+        sizeY2 = sizeY + (CORNER_INFO_PADDING * 4) + (CORNER_INFO_BAR_SIZE[1] * 6) + CORNER_INFO_DIVIDER_SIZE[1]
         self.sizes = [(sizeX, sizeY), (sizeX2, sizeY2)]
         self.rect = pygame.Rect((0, 0), self.sizes[0])
         self.portrait = None
@@ -39,6 +40,7 @@ class CornerInfo(object):
         self.mana = 0
         self.manaMax = 0
         self.isMage = False
+        self.font = font = pygame.font.Font(CORNER_INFO_FONT, CORNER_INFO_FONT_SIZE)
 
     def update(self, side, in_portrait, in_hp, in_hpMax, in_mana, in_manaMax, inMage):
         if not in_portrait is None:
@@ -78,12 +80,16 @@ class CornerInfo(object):
             tempX = CORNER_INFO_PADDING
             tempY = (CORNER_INFO_PADDING * 2) + CORNER_INFO_PORTRAIT_SIZE
             mainPane.blit(self.createBar(0), (tempX, tempY))
+            tempY += CORNER_INFO_BAR_SIZE[1]
+            mainPane.blit(self.createText(0), (tempX, tempY))
             if self.isMage:
                 tempY += CORNER_INFO_PADDING + CORNER_INFO_BAR_SIZE[1]
                 mainPane.blit(self.createDivider(), (tempX, tempY))
                 tempY += CORNER_INFO_PADDING + CORNER_INFO_DIVIDER_SIZE[1]
                 for i in range(1, 4):
                     mainPane.blit(self.createBar(i), (tempX, tempY))
+                    tempY += CORNER_INFO_BAR_SIZE[1]
+                    mainPane.blit(self.createText(i), (tempX, tempY))
                     tempY += CORNER_INFO_PADDING + CORNER_INFO_BAR_SIZE[1]
             
             screen.blit(mainPane, self.rect.topleft)
@@ -101,6 +107,21 @@ class CornerInfo(object):
         result.fill(CORNER_INFO_BAR_COLORS[inVal])
 
         return result
+
+    def createText(self, inVal):
+        if inVal == 0:
+            stat = self.hp
+            statMax = self.hpMax
+        else:
+            stat = self.mana[inVal-1]
+            statMax = self.manaMax[inVal-1]
+
+        tempText = str(stat) + "/" + str(statMax)
+        tempRect = pygame.Rect((0, 0), CORNER_INFO_BAR_SIZE)
+        tempColor = CORNER_INFO_BAR_COLORS[inVal]
+        return textrect.render_textrect(tempText, self.font, tempRect,
+                                        tempColor, BLACK, 2, True)
+        
 
     def createDivider(self):
         result = pygame.Surface(CORNER_INFO_DIVIDER_SIZE)

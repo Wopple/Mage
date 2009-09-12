@@ -810,13 +810,13 @@ class Model(model.Model):
             temp_mage = False
         else:
             portrait = tempActor.portrait
-            temp_hp = tempActor.hp
-            temp_hpMax = tempActor.piece.hpCurr
+            temp_hp = tempActor.piece.hpCurr
+            temp_hpMax = tempActor.hp
             temp_mage = tempActor.isMage
 
         if temp_mage:
-            temp_mana = tempActor.mana
-            temp_manaMax = tempActor.piece.mpCurr
+            temp_mana = tempActor.piece.mpCurr
+            temp_manaMax = tempActor.maxMana
         else:
             temp_mana = (0, 0, 0)
             temp_manaMax = (0, 0, 0)

@@ -62,3 +62,13 @@ class Player(object):
     def levelUp(self):
         if self.level < MAX_LEVEL:
             self.level += 1
+
+    def _maxMana(self):
+        maxMana = []
+
+        for i in self.mana:
+            maxMana.append(i * MAX_MANA_MULTIPLIER)
+
+        return maxMana
+
+    maxMana = property(_maxMana)

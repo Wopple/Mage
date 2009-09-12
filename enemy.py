@@ -47,7 +47,11 @@ class Enemy(object):
         else:
             self.mana = [0, 0, 0]
 
-        self.piece.mpCurr = self.mana
+        self.piece.hpCurr = self.hp
+        mpCurr = []
+        for i in self.mana:
+            mpCurr.append(i * STARTING_MANA_MULTIPLIER)
+        self.piece.mpCurr = mpCurr
 
         self.abilities = inAbilities
 
@@ -78,3 +82,13 @@ class Enemy(object):
         else:
             offStat = self.stats[1]
         return float(ability.damage) * float(offStat)
+
+    def _maxMana(self):
+        maxMana = []
+
+        for i in self.mana:
+            maxMana.append(i * MAX_MANA_MULTIPLIER)
+
+        return maxMana
+
+    maxMana = property(_maxMana)
