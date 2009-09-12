@@ -24,15 +24,11 @@ from constants import *
 import piece
 import ai
 
-class Enemy(object):
+import actor
+
+class Enemy(actor.Actor):
     def __init__(self, inName, inStats, inGift, inMage, inAbilities):
-
-        self.name = inName
-
-        #STR, MAG, SKI, VIT, WIL, SPD, MOVE, HP
-        self.stats = inStats[:6]
-        self.mov = inStats[6]
-        self.hp = inStats[7]
+        super(Enemy, self).__init__(inName, inStats)
 
         self.gift = [inGift[0], inGift[1], inGift[2]]
 
@@ -54,10 +50,7 @@ class Enemy(object):
         self.piece.mpCurr = mpCurr
 
         self.abilities = inAbilities
-
-    def getStats(self):
-        return self.stats
-
+        
     def getStatsOrig(self):
         return [self.stats[0], self.stats[1], self.stats[2], self.stats[3],
                 self.stats[4], self.stats[5], self.mov, self.hp]
@@ -82,13 +75,3 @@ class Enemy(object):
         else:
             offStat = self.stats[1]
         return float(ability.damage) * float(offStat)
-
-    def _maxMana(self):
-        maxMana = []
-
-        for i in self.mana:
-            maxMana.append(i * MAX_MANA_MULTIPLIER)
-
-        return maxMana
-
-    maxMana = property(_maxMana)

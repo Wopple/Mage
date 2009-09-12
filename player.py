@@ -23,19 +23,16 @@ from constants import *
 
 import piece
 
-class Player(object):
-    def __init__(self, inName, inClass, inStats, inStatGrowths, inMana, inPortrait, inAttack, inSpells):
+import actor
 
-        self.name = inName
+class Player(actor.Actor):
+    def __init__(self, inName, inClass, inStats, inStatGrowths, inMana, inPortrait, inAttack, inSpells):
+        super(Player, self).__init__(inName, inStats)
+        
         self.className = inClass
 
         self.isMage = True
-
-        #STR, MAG, SKI, VIT, WIL, SPD, MOVE, HP
-        self.stats = [inStats[0], inStats[1], inStats[2],
-                      inStats[3], inStats[4], inStats[5]]
-        self.mov = inStats[6]
-        self.hp = inStats[7]
+        
         self.statGrowths = inStatGrowths
 
         self.mana = [inMana[0], inMana[1], inMana[2]]
@@ -46,9 +43,6 @@ class Player(object):
 
         self.abilities = inSpells
         self.attackAbility = inAttack
-        
-    def getStats(self):
-        return self.stats
 
     def getMana(self):
         return self.mana
@@ -63,12 +57,3 @@ class Player(object):
         if self.level < MAX_LEVEL:
             self.level += 1
 
-    def _maxMana(self):
-        maxMana = []
-
-        for i in self.mana:
-            maxMana.append(i * MAX_MANA_MULTIPLIER)
-
-        return maxMana
-
-    maxMana = property(_maxMana)
