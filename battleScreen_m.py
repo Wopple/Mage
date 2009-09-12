@@ -313,7 +313,7 @@ class Model(model.Model):
         while self.cursor.rect.bottom > SCREEN_SIZE[1]:
             self.mapRect.top -= 1
             self.cursor.update(self.genCursorPos(), TILE_SIZE )
-        while self.cursor.rect.top < 0:
+        while self.cursor.rect.top < (0 + PIECE_SIZE[0] + SYMBOL_SIZE_LARGE + SYMBOL_ABOVE):
             self.mapRect.top += 1
             self.cursor.update(self.genCursorPos(), TILE_SIZE )
 
