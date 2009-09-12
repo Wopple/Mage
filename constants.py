@@ -125,7 +125,7 @@ FONT_COLORS = {"yellow": (180, 180, 5),
                "gray": (120, 120, 120),
                "black": (2, 2, 2),
                "red": (240, 20, 20),
-               "green": (5, 230, 40)
+               "green": (5, 160, 20)
                }
 
 AURA_COLORS = {"blue": (20, 90, 160),
@@ -358,7 +358,7 @@ CORNER_INFO_BAR_COLORS = [(20, 180, 30),
                           (11, 2, 170),
                           (210, 210, 10)]
 CORNER_INFO_DIVIDER_COLOR = (1, 1, 1)
-CORNER_INFO_DARKER = 50
+CORNER_INFO_DARKER = 120
 CORNER_INFO_FONT = FONTS[1]
 CORNER_INFO_FONT_SIZE = 18
 

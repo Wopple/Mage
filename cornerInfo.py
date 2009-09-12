@@ -104,7 +104,18 @@ class CornerInfo(object):
             stat = self.mana[inVal-1]
             statMax = self.manaMax[inVal-1]
 
-        result.fill(CORNER_INFO_BAR_COLORS[inVal])
+        fullColor = CORNER_INFO_BAR_COLORS[inVal]
+        emptyColor = []
+        for c in fullColor:
+            tempVal = c - CORNER_INFO_DARKER
+            if tempVal < 0:
+                tempVal = 0
+            emptyColor.append(tempVal)
+
+        amountToFill = int((float(stat) / float(statMax)) * CORNER_INFO_BAR_SIZE[0])
+
+        result.fill(emptyColor)
+        result.fill(fullColor, (0, 0, amountToFill, CORNER_INFO_BAR_SIZE[1]))
 
         return result
 

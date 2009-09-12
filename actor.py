@@ -32,6 +32,11 @@ class Actor(object):
     def getStats(self):
         return self.stats
 
+    def takeDamage(self, damage):
+        self.piece.hpCurr -= damage
+        if self.piece.hpCurr < 0:
+            self.piece.hpCurr = 0
+
     def _maxMana(self):
         maxMana = []
 

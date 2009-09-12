@@ -798,10 +798,7 @@ class Model(model.Model):
         else:
             side = True
 
-        if not self.currentTarget is None:
-            tempActor = self.getActor(self.currentTarget)
-        else:
-            tempActor = self.getActorAtCursor()
+        tempActor = self.getActorAtCursor()
         
         if tempActor == False:
             portrait = None
@@ -972,6 +969,7 @@ class Model(model.Model):
                 damage = self.calculateDamage(charOffense, charDefense, currAbility)
                 print "Hit for " + str(damage) + " damage"
                 tempBT = battleText.BattleText(str(damage), FONT_COLORS["red"], tempBTLoc)
+                charDefense.takeDamage(damage)
             else:
                 print "Miss"
                 tempBT = battleText.BattleText("Miss", FONT_COLORS["black"], tempBTLoc)
@@ -984,6 +982,9 @@ class Model(model.Model):
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)
+
+        #Update CornerInfo
+        self.updateCornerInfo()
 
     def findTargetArea(self, currAbility):
         areaMax = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.maxRange, "PA")
