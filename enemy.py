@@ -38,6 +38,9 @@ class Enemy(object):
 
         self.piece = piece.Piece()
 
+        self.portrait = pygame.Surface(PORTRAIT_SIZE_ORIG)
+        self.portrait.fill((1, 1, 1))
+
         self.isMage = inMage
         if self.isMage:
             self.mana = [20, 20, 20]

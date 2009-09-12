@@ -31,7 +31,7 @@ class CornerInfo(object):
         self.rect = pygame.Rect((0, 0), (sizeX, sizeY))
         self.portrait = None
 
-    def update(self, side, in_portrait):
+    def update(self, side, in_portrait, in_hp, in_hpMax, in_mana, in_manaMax, inMage):
         if not in_portrait is None:
             self.portrait = portrait.Portrait(in_portrait, (CORNER_INFO_PORTRAIT_SIZE, CORNER_INFO_PORTRAIT_SIZE), (0,0))
         else:

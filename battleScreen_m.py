@@ -805,12 +805,23 @@ class Model(model.Model):
         
         if tempActor == False:
             portrait = None
-        elif isinstance(tempActor, enemy.Enemy):
-            portrait = None
+            temp_hp = 0
+            temp_hpMax = 0
+            temp_mage = False
         else:
             portrait = tempActor.portrait
+            temp_hp = tempActor.hp
+            temp_hpMax = tempActor.piece.hpCurr
+            temp_mage = tempActor.isMage
+
+        if temp_mage:
+            temp_mana = tempActor.mana
+            temp_manaMax = tempActor.piece.mpCurr
+        else:
+            temp_mana = (0, 0, 0)
+            temp_manaMax = (0, 0, 0)
         
-        self.cornerInfo.update(side, portrait)
+        self.cornerInfo.update(side, portrait, temp_hp, temp_hpMax, temp_mana, temp_manaMax, temp_mage)
 
     def placeEnemies(self):
         #Places the starting enemies for the chapter
