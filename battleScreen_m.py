@@ -977,12 +977,14 @@ class Model(model.Model):
 
         #Add BattleText
         self.battleText.append(tempBT)
-
-        self.battleText.append(battleText.BattleText("Great!", FONT_COLORS["green"], tempBTLoc))
-        self.battleText.append(battleText.BattleText("Go!", FONT_COLORS["black"], tempBTLoc))
+        if charDefense.piece.hpCurr <= 0:
+            self.battleText.append(battleText.BattleText("Defeated", FONT_COLORS["black"], tempBTLoc))
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)
+
+        #Check Field for Defeated Pieces
+        self.checkForDefeated()
 
         #Update CornerInfo
         self.updateCornerInfo()
@@ -1109,6 +1111,14 @@ class Model(model.Model):
     def rollForHit(self, hitChance):
         dice = random.randint(1, 100)
         return (dice <= hitChance)
+
+    def checkForDefeated(self):
+        print "Checking For Defeated Pieces"
+        for y in range(len(self.field)):
+            for x in range(len(self.field[y])):
+                if len(self.field[y][x]) > 0:
+                    if self.field[y][x][0].piece.hpCurr <= 0:
+                        self.field[y][x] = []
         
     # Property for the list of players in the battle.
     def _players(self):
