@@ -463,7 +463,7 @@ class Model(model.Model):
         for x in range(0, len(mapArray)):
             mapArray[x] = mapArray[x].rstrip()
             tempSize = len(mapArray[x])
-            if (tempSize < MAP_SIZE_MIN) or (tempSize > MAP_SIZE_MAX):
+            if (tempSize % 2 != 0) or (tempSize < MAP_SIZE_MIN * 2) or (tempSize > MAP_SIZE_MAX * 2):
                 return False
             if tempSize != testSize:
                 return False

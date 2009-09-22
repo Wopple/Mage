@@ -35,5 +35,6 @@ class Chapter(object):
 
         for y in range(len(inMap)):
             self.map.append([])
-            for x in range(len(inMap[y])):
-                self.map[y].append(inMap[y][x])
+            for x in range(0, len(inMap[y]), 2):
+                temp = inMap[y][x:x+2]
+                self.map[y].append(temp)

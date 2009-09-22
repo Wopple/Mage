@@ -268,8 +268,8 @@ class Model(model.Model):
 
     def findTilePos(self, x, y):
         #Calculation for finding a tile's draw position
-        tempPosX = x * (TILE_SIZE[0])
-        tempPosY = y * (TILE_SIZE[1])
+        tempPosX = x * (TILE_SIZE[0] + MAP_OUTLINE_SIZE)
+        tempPosY = y * (TILE_SIZE[1] + MAP_OUTLINE_SIZE)
         return (tempPosX, tempPosY)
 
     def updateAuras(self):
