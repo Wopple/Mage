@@ -128,12 +128,10 @@ class Card(object):
         self.image.blit(tempArea, (tempX, tempY2))
 
         tempX += CARD_BLOCK_SIZE[0] + CARD_INNER_PADDING
-        if ability.AOE == 0:
-            areaIcon = ICONS[2]
-        elif ability.AOE >= 1 and ability.AOE <= 3:
-            areaIcon = ICONS[3]
-        else:
-            areaIcon = ICONS[4]
+
+        tempAOEType = ability.getAOEType()
+        areaIcon = ICONS[tempAOEType + 2]
+
         
         self.image.blit(areaIcon, (tempX, tempY))
 

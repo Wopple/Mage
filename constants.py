@@ -130,7 +130,8 @@ FONT_COLORS = {"yellow": (180, 180, 5),
 
 AURA_COLORS = {"blue": (20, 90, 160),
                "red": (180, 30, 30),
-               "yellow": (180, 150, 30)
+               "yellow": (180, 150, 30),
+               "white": (180, 180, 180)
                }
 
 BATTLE_TEXT_THRESHOLD = 15

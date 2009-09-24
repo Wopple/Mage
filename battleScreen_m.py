@@ -228,6 +228,8 @@ class Model(model.Model):
 
         if not self.movementOpen:
             self.updateActiveAnimation()
+        if self.targetOpen:
+            self.makeAOEAura()
         
         if playSound:
             self.cursor.playSound()
@@ -930,6 +932,7 @@ class Model(model.Model):
         self.targetOpen = True
         self.movementArea = self.findTargetArea(currAbility)
         self.auras.append(tileAura.TileAura(AURA_COLORS["red"], self.movementArea))
+        self.makeAOEAura()
 
 
 
@@ -989,10 +992,31 @@ class Model(model.Model):
         #Update CornerInfo
         self.updateCornerInfo()
 
+    def makeAOEAura(self):
+        newAuras = []
+        for i in range(len(self.auras)):
+            if self.auras[i].auraID != 1:
+                newAuras.append(self.auras[i])
+        self.auras = newAuras
+
+        AOEArea = self.findAOEArea(self.currentAbility)
+        self.auras.append(tileAura.TileAura(AURA_COLORS["white"], AOEArea, 1))
+                
+
     def findTargetArea(self, currAbility):
         areaMax = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.maxRange, "PA")
         areaMin = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.minRange - 1, "PA")
 
+        return self.combineMinMaxAreas(areaMin, areaMax)
+
+    def findAOEArea(self, currAbility):
+        AOERange = currAbility.getAOERange()
+        areaMax = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, AOERange[1], "PA")
+        areaMin = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, AOERange[0] - 1, "PA")
+
+        return self.combineMinMaxAreas(areaMin, areaMax)
+
+    def combineMinMaxAreas(self, areaMin, areaMax):
         for i in range(len(areaMax)):
             for j in range(len(areaMin)):
                 if areaMax[i] == areaMin[j]:
@@ -1004,6 +1028,7 @@ class Model(model.Model):
                 finalArea.append(i)
 
         return finalArea
+        
 
     def mapPathMaker(self, inX, inY, moveRemain, moverType):
 
