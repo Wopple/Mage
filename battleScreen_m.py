@@ -980,8 +980,9 @@ class Model(model.Model):
 
         #Add BattleText
         self.battleText.append(tempBT)
-        if charDefense.piece.hpCurr <= 0:
-            self.battleText.append(battleText.BattleText("Defeated", FONT_COLORS["black"], tempBTLoc))
+        if charDefense != False:
+            if charDefense.piece.hpCurr <= 0:
+                self.battleText.append(battleText.BattleText("Defeated", FONT_COLORS["black"], tempBTLoc))
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)
