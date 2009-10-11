@@ -905,6 +905,41 @@ class Model(model.Model):
     #improper argument is given.
     def performAction(self, actionNum):
 
+        currAbility = self.getAbilityFromCurrChar(actionNum)
+
+        #Opens targetting system
+        self.currentTarget = self.cursorTuple()
+        self.currentAbility = currAbility
+        self.targetOpen = True
+        self.movementArea = self.findTargetArea(currAbility)
+        self.auras.append(tileAura.TileAura(AURA_COLORS["red"], self.movementArea))
+        self.makeAOEAura()
+
+    def getCurrCharMana(self):
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
+
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        return currChar.piece.mpCurr
+
+    def getCurrCharManaMax(self):
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
+
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        return currChar.maxMana
+
+    def getAbilityFromCurrChar(self, actionNum):
         charLoc = self.cursorTuple()
         x = charLoc[0]
         y = charLoc[1]
@@ -926,15 +961,20 @@ class Model(model.Model):
         else:
             currAbility = currChar.abilities[actionNum]
 
-        #Opens targetting system
-        self.currentTarget = self.cursorTuple()
-        self.currentAbility = currAbility
-        self.targetOpen = True
-        self.movementArea = self.findTargetArea(currAbility)
-        self.auras.append(tileAura.TileAura(AURA_COLORS["red"], self.movementArea))
-        self.makeAOEAura()
+        return currAbility
 
+    def setCurrCharMana(self, inMana):
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
 
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        currChar.piece.mpCurr = inMana
+    
 
     #Performs the finalized action, with the user of
     #the ability being stored in the target, the selected
