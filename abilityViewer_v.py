@@ -30,6 +30,10 @@ class View(view.View):
         self.screen.blit(BLACK_SCREEN, (0, 0))
         self.screen.blit(self.model.background, (0, 0))
         self.model.cardCollection.draw(self.screen)
+        self.screen.blit(self.model.cardGreyer, self.model.cardCollection.getZoomLoc())
+
+        if self.model.notEnoughManaVisible:
+            self.screen.blit(self.model.notEnoughMana, self.model.notEnoughManaRect.topleft)
 
         if tickClock:
             pygame.display.flip()

@@ -30,6 +30,8 @@ class Ability(object):
         self.statOff = inStatOff
         self.statDef = inStatDef
 
+        self.tempFlag = True
+
     def getAOEType(self):
         if self.AOE == 0:
             return 0

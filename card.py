@@ -43,6 +43,7 @@ class Card(object):
             ICONS.append(pygame.image.load(CARD_AREA_ICON_FILE).convert_alpha())
 
         self.manaCost = ability.manaCost
+        self.tempFlag = ability.tempFlag
 
         self.image = pygame.Surface(CARD_SIZE)
         self.image.fill(CARD_BORDER_COLOR_DARK)

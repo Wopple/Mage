@@ -37,6 +37,15 @@ class Actor(object):
         if self.piece.hpCurr < 0:
             self.piece.hpCurr = 0
 
+    def spendMana(self, spent):
+        if not self.isMage:
+            fatalError("Non-Mage attempted to spend mana")
+
+        for i in range(3):
+            self.piece.mpCurr[i] -= spent[i]
+            if self.piece.mpCurr[i] < 0:
+                fatalError("Spent more mana than available")
+
     def _maxMana(self):
         maxMana = []
 
