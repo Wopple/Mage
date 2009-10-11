@@ -40,7 +40,7 @@ class CornerInfo(object):
         self.mana = 0
         self.manaMax = 0
         self.isMage = False
-        self.font = font = pygame.font.Font(CORNER_INFO_FONT, CORNER_INFO_FONT_SIZE)
+        self.font = pygame.font.Font(CORNER_INFO_FONT, CORNER_INFO_FONT_SIZE)
 
     def update(self, side, in_portrait, in_hp, in_hpMax, in_mana, in_manaMax, inMage):
         if not in_portrait is None:
