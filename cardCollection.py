@@ -89,10 +89,12 @@ class CardCollection(object):
         self.drawZoom(screen)
 
     def drawZoom(self, screen):
+        screen.blit(self.zoomCard, self.getZoomLoc())
+
+    def getZoomLoc(self):
         tempX = ((SCREEN_SIZE[0] / 4) * 3) - (CARD_SIZE[0] / 2)
         tempY = (SCREEN_SIZE[1] / 2) - (CARD_SIZE[1] / 2)
-        screen.blit(self.zoomCard, (tempX, tempY))
-
+        return (tempX, tempY)
     def drawStack(self, screen):
         for c in self.cards:
             c.draw(screen)

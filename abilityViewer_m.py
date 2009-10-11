@@ -43,22 +43,28 @@ class Model(model.Model):
         tempVeil.set_alpha(CARD_VIEWER_VEIL)
         self.background.blit(tempVeil, (0, 0))
 
-        self.makeNEM()
+        self.cardGreyer = pygame.Surface(CARD_SIZE)
+        self.cardGreyer.fill(CARD_GREYER_COLOR)
+        self.cardGreyerNum = 0
         
         self.cardCollection = cardCollection.CardCollection(inAbilities)
 
+        self.makeNEM()
         self.updateNEM()
 
     def update(self):
         self.cardCollection.update()
+        self.updateGreyer()
 
     def decMenu(self):
         self.cardCollection.dec()
         self.updateNEM()
+        self.cardGreyerNum = 0
 
     def incMenu(self):
         self.cardCollection.inc()
         self.updateNEM()
+        self.cardGreyerNum = 0
 
     def confirm(self):
         if not self.notEnoughManaVisible:
@@ -78,11 +84,20 @@ class Model(model.Model):
 
     def makeNEM(self):
         self.notEnoughMana = pygame.image.load(NOT_ENOUGH_MANA_FILE).convert_alpha()
-        tempX = (SCREEN_SIZE[0] / 2) - (NOT_ENOUGH_MANA_IMAGE_SIZE[0] / 2)
-        tempY = (SCREEN_SIZE[1] / 2) - (NOT_ENOUGH_MANA_IMAGE_SIZE[1] / 2)
+        zoomLoc = self.cardCollection.getZoomLoc()
+        tempX = (CARD_SIZE[0] / 2) - (NOT_ENOUGH_MANA_IMAGE_SIZE[0] / 2) + zoomLoc[0]
+        tempY = (CARD_SIZE[1] / 2) - (NOT_ENOUGH_MANA_IMAGE_SIZE[1] / 2) + zoomLoc[1]
         self.notEnoughManaRect = pygame.Rect( (tempX, tempY), (NOT_ENOUGH_MANA_IMAGE_SIZE) )
         self.notEnoughManaVisible = False
 
     def updateNEM(self):
         self.notEnoughManaVisible = not(self.cardCollection.currCardTempFlag())
 
+    def updateGreyer(self):
+        if self.notEnoughManaVisible:
+            self.cardGreyerNum += CARD_GREYER_SPEED
+            if self.cardGreyerNum > CARD_GREYER_MAX:
+                self.cardGreyerNum = CARD_GREYER_MAX
+        else:
+            self.cardGreyerNum = 0
+        self.cardGreyer.set_alpha(self.cardGreyerNum)
