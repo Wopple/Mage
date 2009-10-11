@@ -1,4 +1,4 @@
-# Copyright 2009 Christopher Czyzewski
+# Copyright 2009 Christopher Czyzewski, Daniel Tashjian
 # This file is part of Project Mage.
 #
 #    Project Mage is free software: you can redistribute it and/or modify
@@ -17,24 +17,22 @@
 import os
 import sys
 import pygame
-import random
+
+import view
 
 from constants import *
 
-class Chapter(object):
-    def __init__(self, inName, inMap, inStartingPos, inObstacles):
+class View(view.View):
+    def __init__(self, model=None, screen=None):
+        super(View, self).__init__()
 
-        self.name = inName
-        self.startingPos = inStartingPos
+    def update(self, tickClock=True):
+        self.screen.blit(BLACK_SCREEN, (0, 0))
+        self.screen.blit(self.model.background, (0, 0))
+        self.model.box.draw(self.screen)
+        self.model.cursor.draw(self.screen)
+        for bar in self.model.bars:
+            bar.draw(self.screen)
 
-        self.createMapFromStrings(inMap)
-        self.obstacles = inObstacles
-
-    def createMapFromStrings(self, inMap):
-        self.map = []
-
-        for y in range(len(inMap)):
-            self.map.append([])
-            for x in range(0, len(inMap[y]), 2):
-                temp = inMap[y][x:x+2]
-                self.map[y].append(temp)
+        if tickClock:
+            pygame.display.flip()

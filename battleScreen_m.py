@@ -228,6 +228,8 @@ class Model(model.Model):
 
         if not self.movementOpen:
             self.updateActiveAnimation()
+        if self.targetOpen:
+            self.makeAOEAura()
         
         if playSound:
             self.cursor.playSound()
@@ -548,7 +550,7 @@ class Model(model.Model):
         
         tileLoc = self.findTilePos(x, y)
 
-        finalX = tileLoc[0] + self.mapRect.left
+        finalX = tileLoc[0] + (TILE_SIZE[0] / 2) - (PIECE_SIZE[0] / 2) + self.mapRect.left
         finalY = tileLoc[1] + TILE_SIZE[1] - PIECE_SIZE[1] + self.mapRect.top
 
         return (finalX, finalY)
@@ -903,6 +905,41 @@ class Model(model.Model):
     #improper argument is given.
     def performAction(self, actionNum):
 
+        currAbility = self.getAbilityFromCurrChar(actionNum)
+
+        #Opens targetting system
+        self.currentTarget = self.cursorTuple()
+        self.currentAbility = currAbility
+        self.targetOpen = True
+        self.movementArea = self.findTargetArea(currAbility)
+        self.auras.append(tileAura.TileAura(AURA_COLORS["red"], self.movementArea))
+        self.makeAOEAura()
+
+    def getCurrCharMana(self):
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
+
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        return currChar.piece.mpCurr
+
+    def getCurrCharManaMax(self):
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
+
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        return currChar.maxMana
+
+    def getAbilityFromCurrChar(self, actionNum):
         charLoc = self.cursorTuple()
         x = charLoc[0]
         y = charLoc[1]
@@ -924,14 +961,20 @@ class Model(model.Model):
         else:
             currAbility = currChar.abilities[actionNum]
 
-        #Opens targetting system
-        self.currentTarget = self.cursorTuple()
-        self.currentAbility = currAbility
-        self.targetOpen = True
-        self.movementArea = self.findTargetArea(currAbility)
-        self.auras.append(tileAura.TileAura(AURA_COLORS["red"], self.movementArea))
+        return currAbility
 
+    def setCurrCharMana(self, inMana):
+        charLoc = self.cursorTuple()
+        x = charLoc[0]
+        y = charLoc[1]
 
+        if len(self.field[y][x]) != 1:
+            fatalError("Performed character actions on empty square")
+
+        currChar = self.field[y][x][0]
+
+        currChar.piece.mpCurr = inMana
+    
 
     #Performs the finalized action, with the user of
     #the ability being stored in the target, the selected
@@ -977,20 +1020,44 @@ class Model(model.Model):
 
         #Add BattleText
         self.battleText.append(tempBT)
-
-        self.battleText.append(battleText.BattleText("Great!", FONT_COLORS["green"], tempBTLoc))
-        self.battleText.append(battleText.BattleText("Go!", FONT_COLORS["black"], tempBTLoc))
+        if charDefense != False:
+            if charDefense.piece.hpCurr <= 0:
+                self.battleText.append(battleText.BattleText("Defeated", FONT_COLORS["black"], tempBTLoc))
         
         #Uses up target's limited amount of actions
         self.actionOutCharacter(self.currentTarget)
 
+        #Check Field for Defeated Pieces
+        self.checkForDefeated()
+
         #Update CornerInfo
         self.updateCornerInfo()
+
+    def makeAOEAura(self):
+        newAuras = []
+        for i in range(len(self.auras)):
+            if self.auras[i].auraID != 1:
+                newAuras.append(self.auras[i])
+        self.auras = newAuras
+
+        AOEArea = self.findAOEArea(self.currentAbility)
+        self.auras.append(tileAura.TileAura(AURA_COLORS["white"], AOEArea, 1))
+                
 
     def findTargetArea(self, currAbility):
         areaMax = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.maxRange, "PA")
         areaMin = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, currAbility.minRange - 1, "PA")
 
+        return self.combineMinMaxAreas(areaMin, areaMax)
+
+    def findAOEArea(self, currAbility):
+        AOERange = currAbility.getAOERange()
+        areaMax = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, AOERange[1], "PA")
+        areaMin = self.mapPathMaker(self.cursorPos[0].value, self.cursorPos[1].value, AOERange[0] - 1, "PA")
+
+        return self.combineMinMaxAreas(areaMin, areaMax)
+
+    def combineMinMaxAreas(self, areaMin, areaMax):
         for i in range(len(areaMax)):
             for j in range(len(areaMin)):
                 if areaMax[i] == areaMin[j]:
@@ -1002,6 +1069,7 @@ class Model(model.Model):
                 finalArea.append(i)
 
         return finalArea
+        
 
     def mapPathMaker(self, inX, inY, moveRemain, moverType):
 
@@ -1109,6 +1177,14 @@ class Model(model.Model):
     def rollForHit(self, hitChance):
         dice = random.randint(1, 100)
         return (dice <= hitChance)
+
+    def checkForDefeated(self):
+        print "Checking For Defeated Pieces"
+        for y in range(len(self.field)):
+            for x in range(len(self.field[y])):
+                if len(self.field[y][x]) > 0:
+                    if self.field[y][x][0].piece.hpCurr <= 0:
+                        self.field[y][x] = []
         
     # Property for the list of players in the battle.
     def _players(self):

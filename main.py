@@ -61,6 +61,9 @@ import game_v
 import abilityLibrary_m
 import abilityLibrary_v
 
+import energySpender_m
+import energySpender_v
+
 from constants import *
 
 
@@ -231,12 +234,22 @@ def chapterBattle(tiles, theChapter, activeChars, enemyList):
             else:
                 changeC(cursor_c.Controller())
 
+        #Card Selection Screen
         if m.cardsOpen:
             changeMVC(12, abilityViewer_m.Model(m.getAbilitiesFromCursorActor(), screen), abilityViewer_v.View(), menu_c.Controller())
             while not (m.either()):
                 proceed()
             if m.advance():
-                battleModel.performAction(m.getSel())
+                sel = m.getSel()
+                currCharMana = battleModel.getCurrCharMana()
+                currCharManaMax = battleModel.getCurrCharManaMax()
+                manaCost = battleModel.getAbilityFromCurrChar(sel).manaCost
+                if manaCost[3] > 0:
+                    changeMVC(13, energySpender_m.Model(screen, currCharMana, currCharManaMax, manaCost), energySpender_v.View(), menu_c.Controller())
+                    while not (m.advance()):
+                        proceed()
+                    battleModel.setCurrCharMana(m.mana)
+                battleModel.performAction(sel)
             changeMVC(8, battleModel, battleView, cursor_c.Controller())
             m.cardsOpen = False
             

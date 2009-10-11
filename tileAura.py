@@ -24,7 +24,7 @@ from constants import *
 import incint
 
 class TileAura(object):
-    def __init__(self, inColor, tiles):
+    def __init__(self, inColor, tiles, auraID=0):
 
         self.alphaUp = True
         self.alpha = incint.IncInt(AURA_ALPHA_MIN,  AURA_ALPHA_MIN, AURA_ALPHA_MAX)
@@ -35,6 +35,8 @@ class TileAura(object):
         self.red = inColor[0]
         self.green = inColor[1]
         self.blue = inColor[2]
+
+        self.auraID = auraID
 
         self.fillColor()
 
