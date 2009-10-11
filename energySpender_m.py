@@ -39,8 +39,15 @@ class Model(model.Model):
         self.goBack = False
         self.goForward = False
 
-        self.mana = inCharMana
+        self.origMana = []
+        self.mana = []
+        for i in range(3):
+            self.origMana.append(inCharMana[i])
+            self.mana.append(inCharMana[i])
         self.colorless = inManaCost[3]
+
+        for i in range(3):
+            self.mana[i] -= inManaCost[i]
 
         temp = self.getTextRect(0)
         self.cursor = cursor.Cursor(temp)
@@ -56,6 +63,9 @@ class Model(model.Model):
 
         self.buildWindow()
 
+        self.colorlessRect = self.getColorlessRect()
+        self.makeColorlessText()
+
         self.bars = []
         for i in range(3):
             colorFull = ENERGY_SPENDER_BAR_COLORS[i]
@@ -67,6 +77,13 @@ class Model(model.Model):
                 colorEmpty.append(tempVal)
             self.bars.append(meter.Meter(self.getMeterLoc(i), ENERGY_SPENDER_BAR_SIZE[0], ENERGY_SPENDER_BAR_SIZE[1],
                                          inCharManaMax[i], colorFull, colorEmpty))
+
+        self.manaNums = []
+        self.manaNumRects = []
+        for i in range(3):
+            temp = self.getManaNumRect(i)
+            self.manaNumRects.append(temp)
+            self.manaNums.append(self.makeManaNum(temp, i))
 
     def incMenu(self):
         self.cursorPos.inc()
@@ -93,8 +110,44 @@ class Model(model.Model):
             self.mana[self.cursorPos.value] -= 1
             self.colorless -= 1
 
+        self.makeColorlessText()
+
+        self.manaNums = []
+        for i in range(3):
+            self.manaNums.append(self.makeManaNum(self.manaNumRects[i], i))
+
         if self.colorless == 0:
             self.goForward = True
+
+    def getColorlessRect(self):
+        size = ENERGY_SPENDER_ELEMENT_SIZE
+        tempX = (ENERGY_SPENDER_SIZE[0] / 2) - (size[0] / 2)
+        tempY = ENERGY_SPENDER_BORDER_SIZE + ENERGY_SPENDER_PADDING
+        tempX += self.box.rect.left
+        tempY += self.box.rect.top
+        return pygame.Rect( (tempX, tempY), size )
+
+    def getManaNumRect(self, inNum):
+        inNum += 1
+        size = ENERGY_SPENDER_ELEMENT_SIZE
+        tempX = ENERGY_SPENDER_BORDER_SIZE + (ENERGY_SPENDER_PADDING * 2) + ENERGY_SPENDER_ELEMENT_SIZE[0]
+        tempY = ENERGY_SPENDER_PADDING + ((ENERGY_SPENDER_PADDING + ENERGY_SPENDER_ELEMENT_SIZE[1]) * inNum) + ENERGY_SPENDER_BORDER_SIZE
+        tempX += self.box.rect.left
+        tempY += self.box.rect.top
+        return pygame.Rect( (tempX, tempY), size )
+
+    def makeColorlessText(self):
+        tempFont = pygame.font.Font(ENERGY_SPENDER_FONT, ENERGY_SPENDER_FONT_SIZE)
+        temp = textrect.render_textrect(str(self.colorless), tempFont,
+                                            self.colorlessRect, ENERGY_SPENDER_COLORLESS, (0, 0, 0), 1, True)
+        self.colorlessText = temp
+
+    def makeManaNum(self, inRect, inNum):
+        tempFont = pygame.font.Font(ENERGY_SPENDER_FONT, ENERGY_SPENDER_FONT_SIZE)
+        temp = textrect.render_textrect(str(self.mana[inNum]), tempFont,
+                                            inRect, ENERGY_SPENDER_BAR_COLORS[inNum], (0, 0, 0), 1, True)
+        return temp
+
 
     def buildWindow(self):
         self.box = box.Box(pygame.Rect((0, 0), (ENERGY_SPENDER_SIZE)),
@@ -119,7 +172,7 @@ class Model(model.Model):
 
     def getMeterLoc(self, inNum):
         inNum += 1
-        tempX = (ENERGY_SPENDER_PADDING * 2) + ENERGY_SPENDER_ELEMENT_SIZE[0] + ENERGY_SPENDER_BORDER_SIZE
+        tempX = (ENERGY_SPENDER_PADDING * 3) + (ENERGY_SPENDER_ELEMENT_SIZE[0] * 2) + ENERGY_SPENDER_BORDER_SIZE
         tempY = ENERGY_SPENDER_PADDING + ((ENERGY_SPENDER_PADDING + ENERGY_SPENDER_ELEMENT_SIZE[1]) * inNum) + ENERGY_SPENDER_BORDER_SIZE
         tempX += self.box.rect.left
         tempY += self.box.rect.top
@@ -130,3 +183,9 @@ class Model(model.Model):
         temp.left += self.box.rect.left
         temp.top += self.box.rect.top
         self.cursor.update(temp.topleft, (temp.width, temp.height))
+
+    def getTotalSpending(self):
+        total = []
+        for i in range(3):
+            total.append(self.origMana[i] - self.mana[i])
+        return total

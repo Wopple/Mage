@@ -30,9 +30,11 @@ class View(view.View):
         self.screen.blit(BLACK_SCREEN, (0, 0))
         self.screen.blit(self.model.background, (0, 0))
         self.model.box.draw(self.screen)
-        self.model.cursor.draw(self.screen)
-        for bar in self.model.bars:
-            bar.draw(self.screen)
+        self.screen.blit(self.model.colorlessText, self.model.colorlessRect.topleft)
+        self.model.cursor.draw(self.screen) 
+        for i in range(3):
+            self.model.bars[i].draw(self.screen)
+            self.screen.blit(self.model.manaNums[i], self.model.manaNumRects[i].topleft)
 
         if tickClock:
             pygame.display.flip()

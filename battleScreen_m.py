@@ -106,6 +106,8 @@ class Model(model.Model):
         # Plan to execute for the enemy.
         self.plan = None
 
+        self.spendingTemp = None
+
     def goCheat(self, inCheat):
         if inCheat == 1:
             self.goForward = True
@@ -853,7 +855,31 @@ class Model(model.Model):
         if temp == False:
             fatalError("Attempted to get abilities of empty square")
 
-        return temp.abilities
+        abilities = temp.abilities
+
+        for a in abilities:
+            a.tempFlag = self.canAffordAbility(a, temp.piece.mpCurr)
+
+        return abilities
+
+    # Checks to see in a given ability can be afforded with a given array of mana amounts
+    def canAffordAbility(self, inAbility, inMana):
+        cost = inAbility.manaCost
+
+        checker = True
+        totalCost = 0
+        totalMana = 0
+        for i in range(3):
+            if cost[i] > inMana[i]:
+                checker = False
+            totalCost += cost[i]
+            totalMana += inMana[i]
+
+        if totalCost > totalMana:
+            checker = False
+
+        return checker
+
 
     # Performs the action from the current plan.
     def executePlan(self):
@@ -888,13 +914,6 @@ class Model(model.Model):
                     if self.field[y][x][0] is character:
                         return (x, y)
         return None
-
-    def getAbilitiesFromCursorActor(self):
-        temp = self.getActorAtCursor()
-        if temp == False:
-            fatalError()
-
-        return temp.abilities
 
     #Causes the actor at the cursor to perform an ability.
     #Performs the first half, retrieving the ability and
@@ -963,17 +982,8 @@ class Model(model.Model):
 
         return currAbility
 
-    def setCurrCharMana(self, inMana):
-        charLoc = self.cursorTuple()
-        x = charLoc[0]
-        y = charLoc[1]
-
-        if len(self.field[y][x]) != 1:
-            fatalError("Performed character actions on empty square")
-
-        currChar = self.field[y][x][0]
-
-        currChar.piece.mpCurr = inMana
+    def setSpending(self, inSpending):
+        self.spendingTemp = inSpending
     
 
     #Performs the finalized action, with the user of
@@ -996,6 +1006,13 @@ class Model(model.Model):
 
         if charOffense == False:
             fatalError()
+
+        spentMana = self.spendingTemp
+        if spentMana is None:
+            fatalError("Spending Mana referenced None Type")
+
+        if charOffense.isMage:
+            charOffense.spendMana(spentMana)
 
         charDefense = self.getActorAtCursor()
 

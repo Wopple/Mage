@@ -248,7 +248,7 @@ def chapterBattle(tiles, theChapter, activeChars, enemyList):
                     changeMVC(13, energySpender_m.Model(screen, currCharMana, currCharManaMax, manaCost), energySpender_v.View(), menu_c.Controller())
                     while not (m.advance()):
                         proceed()
-                    battleModel.setCurrCharMana(m.mana)
+                    battleModel.setSpending(m.getTotalSpending())
                 battleModel.performAction(sel)
             changeMVC(8, battleModel, battleView, cursor_c.Controller())
             m.cardsOpen = False

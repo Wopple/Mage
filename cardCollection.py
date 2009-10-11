@@ -98,4 +98,7 @@ class CardCollection(object):
             c.draw(screen)
         tempArrowY = self.arrowRect.top - self.bobber.value
         screen.blit(ARROW, (self.arrowRect.left, tempArrowY))
+
+    def currCardTempFlag(self):
+        return self.cards[self.selection.value].tempFlag
         

@@ -43,20 +43,26 @@ class Model(model.Model):
         tempVeil.set_alpha(CARD_VIEWER_VEIL)
         self.background.blit(tempVeil, (0, 0))
 
+        self.makeNEM()
         
         self.cardCollection = cardCollection.CardCollection(inAbilities)
+
+        self.updateNEM()
 
     def update(self):
         self.cardCollection.update()
 
     def decMenu(self):
         self.cardCollection.dec()
+        self.updateNEM()
 
     def incMenu(self):
         self.cardCollection.inc()
+        self.updateNEM()
 
     def confirm(self):
-        self.goForward = True
+        if not self.notEnoughManaVisible:
+            self.goForward = True
 
     def advance(self):
         return self.goForward
@@ -69,4 +75,14 @@ class Model(model.Model):
 
     def getSel(self):
         return self.cardCollection.selection.value
+
+    def makeNEM(self):
+        self.notEnoughMana = pygame.image.load(NOT_ENOUGH_MANA_FILE).convert_alpha()
+        tempX = (SCREEN_SIZE[0] / 2) - (NOT_ENOUGH_MANA_IMAGE_SIZE[0] / 2)
+        tempY = (SCREEN_SIZE[1] / 2) - (NOT_ENOUGH_MANA_IMAGE_SIZE[1] / 2)
+        self.notEnoughManaRect = pygame.Rect( (tempX, tempY), (NOT_ENOUGH_MANA_IMAGE_SIZE) )
+        self.notEnoughManaVisible = False
+
+    def updateNEM(self):
+        self.notEnoughManaVisible = not(self.cardCollection.currCardTempFlag())
 
