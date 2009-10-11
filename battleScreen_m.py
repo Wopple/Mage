@@ -351,6 +351,7 @@ class Model(model.Model):
                 self.menuOpen = False
             elif self.battleMenu.text() == "Weapon":
                 self.performAction(-1)
+                self.setSpending([0, 0, 0])
                 self.menuOpen = False
             elif self.battleMenu.text() == "Item":
                 self.actionOutCharacter()
