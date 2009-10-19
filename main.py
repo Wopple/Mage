@@ -220,7 +220,15 @@ def chapterBattle(tiles, theChapter, activeChars, enemyList):
                 changeC(cursor_c.Controller())
             elif phase == 2:
                 changeC(AI_c.Controller())
-
+        if m.abilityChainOpen:
+            changeC(no_c.Controller())
+            if len(m.battleText) == 0:
+                if len(m.squaresToAttack) == 0:
+                    changeC(cursor_c.Controller())
+                    m.abilityChainOpen = False
+                    m.endAbilityChain()
+                else:
+                    m.nextInAbilityChain()
         if (stationOpen != m.stationOpen) and (phase != 2):
             stationOpen = m.stationOpen
             if stationOpen:

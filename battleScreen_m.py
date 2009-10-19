@@ -84,6 +84,7 @@ class Model(model.Model):
         self.movementOpen = False
         self.cardsOpen = False
         self.targetOpen = False
+        self.abilityChainOpen = False
 
         #Builds the sub-panels
         self.buildCharStation()
@@ -107,6 +108,8 @@ class Model(model.Model):
         self.plan = None
 
         self.spendingTemp = None
+
+        self.squaresToAttack = []
 
     def goCheat(self, inCheat):
         if inCheat == 1:
@@ -359,12 +362,11 @@ class Model(model.Model):
 
         elif (self.targetOpen):
             if self.cursorTuple() in self.movementArea:
+                self.squaresToAttack = self.findAOEArea(self.currentAbility)
                 self.targetOpen = False
-                self.resolveAction()
-                self.currentTarget = None
-                self.currentAbility = None
-                self.movementArea = None
                 self.auras = []
+                self.abilityChainOpen = True
+                self.beginAbilityChain()
                 
         elif (self.movementOpen == False) and (self.overMovableCharacter()):
             #When over a selectable character
@@ -985,6 +987,21 @@ class Model(model.Model):
 
     def setSpending(self, inSpending):
         self.spendingTemp = inSpending
+
+    def beginAbilityChain(self):
+        charOffense = self.getActor(self.currentTarget)
+
+        if charOffense == False:
+            fatalError()
+        
+        spentMana = self.spendingTemp
+        if spentMana is None:
+            fatalError("Spending Mana referenced None Type")
+
+        if charOffense.isMage:
+            charOffense.spendMana(spentMana)
+
+        self.spendingTemp = None
     
 
     #Performs the finalized action, with the user of
@@ -1007,13 +1024,6 @@ class Model(model.Model):
 
         if charOffense == False:
             fatalError()
-
-        spentMana = self.spendingTemp
-        if spentMana is None:
-            fatalError("Spending Mana referenced None Type")
-
-        if charOffense.isMage:
-            charOffense.spendMana(spentMana)
 
         charDefense = self.getActorAtCursor()
 
@@ -1203,6 +1213,20 @@ class Model(model.Model):
                 if len(self.field[y][x]) > 0:
                     if self.field[y][x][0].piece.hpCurr <= 0:
                         self.field[y][x] = []
+
+    def nextInAbilityChain(self):
+        currSquare = self.squaresToAttack[0]
+        if len(self.squaresToAttack) > 1:
+            self.squaresToAttack = self.squaresToAttack[1:]
+        else:
+            self.squaresToAttack = []
+        self.setCursorPos(currSquare[0], currSquare[1])
+        self.resolveAction()
+
+    def endAbilityChain(self):
+        self.currentTarget = None
+        self.currentAbility = None
+        self.movementArea = None
         
     # Property for the list of players in the battle.
     def _players(self):
