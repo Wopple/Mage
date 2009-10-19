@@ -361,8 +361,9 @@ class Model(model.Model):
                 self.menuOpen = False
 
         elif (self.targetOpen):
-            if self.cursorTuple() in self.movementArea:
-                self.squaresToAttack = self.findAOEArea(self.currentAbility)
+            targetSquares = self.findAOETargets(self.currentAbility)
+            if (self.cursorTuple() in self.movementArea) and (len(targetSquares) > 0):
+                self.squaresToAttack = targetSquares
                 self.targetOpen = False
                 self.auras = []
                 self.abilityChainOpen = True
@@ -1085,6 +1086,17 @@ class Model(model.Model):
 
         return self.combineMinMaxAreas(areaMin, areaMax)
 
+    def findAOETargets(self, currAbility):
+        AOEArea = self.findAOEArea(currAbility)
+
+        newArray = []
+        for x in range(len(AOEArea)):
+            if not self.getActor(AOEArea[x]) == False:
+                newArray.append(AOEArea[x])
+
+        return newArray
+            
+
     def combineMinMaxAreas(self, areaMin, areaMax):
         for i in range(len(areaMax)):
             for j in range(len(areaMin)):
@@ -1224,6 +1236,7 @@ class Model(model.Model):
         self.resolveAction()
 
     def endAbilityChain(self):
+        self.setCursorPos(self.currentTarget[0], self.currentTarget[1])
         self.currentTarget = None
         self.currentAbility = None
         self.movementArea = None
