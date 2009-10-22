@@ -39,29 +39,41 @@ class DialogSystem(object):
         self.nextPos = (0, 0)
         self.fonts = [pygame.font.Font(DIALOG_BOX_FONT_NORMAL, DIALOG_BOX_FONT_NORMAL_SIZE)]
         self.createOverlay()
+        self.pause = False
+        self.beginFlag= True
 
 
     def makeDialogBox(self):
         tempX = DIALOG_BOX_SPACING
         sizeX = SCREEN_SIZE[0] - (DIALOG_BOX_SPACING * 2)
-        sizeY = (DIALOG_BOX_ELEMENT_SIZE[1] * DIALOG_BOX_NUM_OF_LINES) + (DIALOG_BOX_PADDING * (DIALOG_BOX_NUM_OF_LINES + 1))
+        sizeY = (DIALOG_BOX_ELEMENT_SIZE[1] * (DIALOG_BOX_NUM_OF_LINES + 1)) + (DIALOG_BOX_PADDING * (DIALOG_BOX_NUM_OF_LINES + 2))
         r = pygame.Rect( (tempX, 0), (sizeX, sizeY) )
         r.bottom = SCREEN_SIZE[1] - DIALOG_BOX_SPACING
         self.dialogBox = box.Box(r, DIALOG_BOX_BG_IMAGE, DIALOG_BOX_BG_SIZE, DIALOG_BOX_BORDER, DIALOG_BOX_BORDER_SIZE)
 
     def update(self):
-        if len(self.text) > 0:
-            if len(self.text[0]) > 0:
-                self.tick.inc()
-                if self.tick.isMin():
-                    self.nextLetter = textrect.render_textrect(self.text[0][0], self.fonts[0],
-                                                    pygame.Rect((0, 0),DIALOG_BOX_ELEMENT_SIZE),
-                                                    DIALOG_BOX_FONT_COLOR, (0, 0, 0), 1, True)
-                    self.text[0] = self.text[0][1:]
-                    tempX = DIALOG_BOX_BORDER_SIZE + DIALOG_BOX_PADDING + (DIALOG_BOX_ELEMENT_SIZE[0] * self.letter.value)
-                    tempY = DIALOG_BOX_BORDER_SIZE + (DIALOG_BOX_PADDING * (self.line.value + 1))
-                    self.nextPos = (tempX, tempY)
-                    self.incrementCounter()
+        if len(self.text) == 0:
+            self.pause = True
+        elif len(self.text[0]) == 0:
+            self.pause = True
+        if (self.letter.value == 0) and (self.line.value == 0):
+            self.pause = True
+
+        self.tick.inc()
+        if self.beginFlag:
+            self.beginFlag = False
+            self.tick.value = 0
+            self.pause = False
+
+        if self.tick.isMin() and not self.pause:
+            self.nextLetter = textrect.render_textrect(self.text[0][0], self.fonts[0],
+                                                       pygame.Rect((0, 0),DIALOG_BOX_ELEMENT_SIZE),
+                                                       DIALOG_BOX_FONT_COLOR, (0, 0, 0), 1, True)
+            self.text[0] = self.text[0][1:]
+            tempX = DIALOG_BOX_BORDER_SIZE + DIALOG_BOX_PADDING + (DIALOG_BOX_ELEMENT_SIZE[0] * self.letter.value)
+            tempY = DIALOG_BOX_BORDER_SIZE + (DIALOG_BOX_PADDING * (self.line.value + 1)) + (DIALOG_BOX_ELEMENT_SIZE[1] * self.line.value)
+            self.nextPos = (tempX, tempY)
+            self.incrementCounter()
 
     def draw(self, screen):
         self.dialogBox.draw(screen)
@@ -75,3 +87,5 @@ class DialogSystem(object):
 
     def createOverlay(self):
         self.overlay = pygame.Surface((self.dialogBox.rect.width, self.dialogBox.rect.height))
+        self.overlay.set_colorkey(TRANSPARENT_COLOR)
+        self.overlay.fill(TRANSPARENT_COLOR)

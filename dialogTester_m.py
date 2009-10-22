@@ -52,7 +52,7 @@ class Model(model.Model):
             textArray = textFile.readlines()
             textFile.close()
         except:
-            textArray = ["BlahdeBlahdeBlah.  I like to Great Aether people.  In the face!",
+            textArray = ["BlahdeBlahdeBlah.  I like to Great Aether people.  In the face!  Yoooooooo!  Making a really long piece of text here.  Look at meeee!!  Still talking here.  Ok I'm good now.",
                          "Yo momma is fat.  Blahhhhhhhh."]
 
         for x in range(len(textArray)):
