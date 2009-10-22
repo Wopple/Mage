@@ -64,6 +64,10 @@ import abilityLibrary_v
 import energySpender_m
 import energySpender_v
 
+import dialogTester_m
+import dialogTester_v
+import dialog_c
+
 from constants import *
 
 
@@ -135,7 +139,12 @@ def mainLoop():
     changeMVC(1, title_m.Model(), title_v.View(), menu_c.Controller())
     proceed()
     if m.advance():
-        if m.titleMenu.value() == 1:
+        if m.cheatFlag:
+            #Runs the dialog tester
+            changeMVC(14, dialogTester_m.Model(), dialogTester_v.View(), dialog_c.Controller())
+            while not(m.either()):
+                proceed()
+        elif m.titleMenu.value() == 1:
             #Runs the Campaign Selection menu
             changeMVC(2, missionSel_m.Model(), missionSel_v.View(), menu_c.Controller())
             while not(m.either()):

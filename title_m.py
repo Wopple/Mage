@@ -34,6 +34,7 @@ class Model(model.Model):
                                            MAIN_MENU_COLOR_OFF, MAIN_MENU_COLOR_BG)
         self.titleMenu.center(ENTIRE_SCREEN, True, True)
         self.confirmed = False
+        self.cheatFlag = False
 
     def incMenu(self):
         self.titleMenu.inc()
@@ -43,18 +44,18 @@ class Model(model.Model):
 
     def confirm(self):
         self.confirmed = True
+        self.cheatFlag = False
 
     def update(self):
         pass
 
     def advance(self):
-        if (self.confirmed == True) and not (self.back()):
-            return True
-        else:
-            return False
+        return ((self.confirmed == True) and not (self.back()))
 
     def back(self):
-        if (self.confirmed == True) and (self.titleMenu.value() == 3):
-            return True
-        else:
-            return False
+        return ((self.confirmed == True) and (self.titleMenu.value() == 3))
+
+    def goCheat(self, inCheat):
+        if inCheat == 1:
+            self.confirmed = True
+            self.cheatFlag = True
